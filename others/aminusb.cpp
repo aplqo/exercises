@@ -5,6 +5,7 @@ using namespace std;
 
 int gcd(int a,int b)
 {
+    if(a==0||b==0) return 1;
     a=abs(a);b=abs(b);
     if(a<b) swap(a,b);
     int r=a%b;
@@ -26,9 +27,12 @@ void solve()
     ansx/=g;ansy/=g;
     if(abs(ansy)==1)
         printf("%d\n",ansx/ansy);
+    else if(ansx==0)
+        printf("0\n");
     else
     {
-        if(ansx*ansy<0) printf("%c",'-');
+        bool sx=ansx>0,sy=ansy>0;
+        if((sx^sy)&&ansx!=0&&ansy!=0) printf("%c",'-');
         printf("%d/%d\n",abs(ansx),abs(ansy));
     }
 }
