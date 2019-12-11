@@ -9,9 +9,12 @@
 using namespace std;
 using namespace std::chrono;
 
-namespace apdebug
+namespace ns_run
 {
 	inline int run(int argc, char* c[]);
+}
+namespace apdebug
+{
 	unsigned int tlim = 1000, hardlim = tlim * 10;
 	char* cmd[100], ccmd = 1;
 	char testcmd[100], * out = nullptr;
@@ -67,9 +70,10 @@ namespace apdebug
 	}
 	int call_main()
 	{
+		regsig();
 		timer<steady_clock, milliseconds, microseconds> t("ms", "us", tlim);
 		t.start();
-		int ret = run(ccmd, cmd);
+		int ret = ns_run::run(ccmd, cmd);
 		t.stop(); t.print();
 		return ret;
 	}
@@ -83,7 +87,6 @@ namespace apdebug
 int main(int argc, char* argv[])
 {
 	apdebug::cmd[0]=argv[0];
-	apdebug::regsig();
 	for (int i = 1; i < argc; ++i)
 	{
 		if (!strcmp(argv[i], "-in")) freopen(argv[++i], "r", stdin);
@@ -108,17 +111,36 @@ int main(int argc, char* argv[])
 		cerr << "MLE/TLE: " << "Hard time limit(" << apdebug::hardlim << ") exceeded.";
 		exit(0);
 	}
+	try
+	{
+		int ret=f.get();
+	}
+	catch(const exception &e)
+	{
+		cerr<<"RE: Throw an exception what():"<<e.what();
+		abort();
+	}
+	catch(...)
+	{
+		cerr<<"RE: Throw an unknown exception";
+		abort();
+	}
 	apdebug::test();
 	return 0;
 }
-#ifndef APINPROG
-inline int apdebug::run(int argc, char* argv[])
+namespace ns_run
 {
-	string cm(argv[0]);
-	for (int i = 1; i < argc; i++)
-		cm += " " + string(argv[i]);
-	return system(cm.c_str());
-}
+#ifndef APINPROG
+
+	inline int run(int argc, char* argv[])
+	{
+		string cm(argv[0]);
+		for (int i = 1; i < argc; i++)
+			cm += " " + string(argv[i]);
+		return system(cm.c_str());
+	}
+
 #else
-#define main(...) apdebug::run(int argc,char *argv[])
+#define main(...) ns_run::run(int argc,char *argv[])
 #endif
+}
