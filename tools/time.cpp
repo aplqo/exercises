@@ -17,7 +17,7 @@ namespace apdebug
 {
 	unsigned int tlim = 1000, hardlim = tlim * 10;
 	char* cmd[100], ccmd = 1;
-	char testcmd[100], * out = nullptr;
+	char testcmd[100], * out = nullptr,*in=nullptr;
 	/*---Timer---*/
 	template<class tim, class uni1, class uni2>
 	class timer
@@ -81,6 +81,8 @@ namespace apdebug
 	{
 		if (out == nullptr || strlen(testcmd) == 0) return 0;
 		cerr << "-----Test result-----" << endl;
+		strcat(testcmd," ");strcat(testcmd,in);
+		strcat(testcmd," ");strcat(testcmd,out);
 		return system(testcmd);
 	}
 }
@@ -89,7 +91,11 @@ int main(int argc, char* argv[])
 	apdebug::cmd[0]=argv[0];
 	for (int i = 1; i < argc; ++i)
 	{
-		if (!strcmp(argv[i], "-in")) freopen(argv[++i], "r", stdin);
+		if (!strcmp(argv[i], "-in")) 
+		{
+			freopen(argv[++i], "r", stdin);
+			apdebug::in=argv[i];
+		}
 		else if (!strcmp(argv[i], "-out"))
 		{
 			freopen(argv[++i], "w", stdout);
