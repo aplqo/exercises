@@ -23,11 +23,13 @@ namespace apdebug
 	class timer
 	{
 	public:
-		timer(const char* u1, const char* u2, unsigned int l) : n1(u1), n2(u2), lim(l) {};
-		inline void start() { beg = tim::now(); };
-		inline void stop() { aft = tim::now(); };
+		timer(const char* u1, const char* u2, unsigned int l) : n1(u1), n2(u2), lim(l),stat(false) {};
+		inline void start() { beg = tim::now(); stat=true;};
+		inline void stop() { aft = tim::now();};
 		void print()
 		{
+			if(!stat) return;
+			stat=false;
 			cerr << endl;
 			uni1 d1 = duration_cast<uni1>(aft - beg);
 			uni2 d2 = duration_cast<uni2>(aft - beg);
@@ -39,7 +41,9 @@ namespace apdebug
 		typename tim::time_point beg, aft;
 		unsigned int lim;
 		const char* n1, * n2;
+		bool stat;
 	};
+	timer<steady_clock, milliseconds, microseconds> t("ms", "us", tlim);
 	/*---Signal Handlers---*/
 	extern "C" void sig(int s)
 	{
@@ -68,10 +72,15 @@ namespace apdebug
 		signal(SIGINT, sig);
 		signal(SIGTERM, sig);
 	}
+	void atex() noexcept
+	{
+		t.stop();
+		t.print();
+	}
 	int call_main()
 	{
+		atexit(atex);
 		regsig();
-		timer<steady_clock, milliseconds, microseconds> t("ms", "us", tlim);
 		t.start();
 		int ret = ns_run::run(ccmd, cmd);
 		t.stop(); t.print();
@@ -102,7 +111,11 @@ int main(int argc, char* argv[])
 			apdebug::out = argv[i];
 		}
 		else if (!strcmp(argv[i], "-test")) strcpy(apdebug::testcmd, argv[++i]);
-		else if (!strcmp(argv[i], "-time")) apdebug::tlim = atoi(argv[++i]);
+		else if (!strcmp(argv[i], "-time")) 
+		{
+			apdebug::tlim = atoi(argv[++i]);
+			apdebug::hardlim=apdebug::tlim*10;
+		}
 		else if (!strcmp(argv[i], "-hlimit")) apdebug::hardlim = atoi(argv[++i]);
 		else if (!strcmp(argv[i], "-args"))
 		{
@@ -114,8 +127,8 @@ int main(int argc, char* argv[])
 	future<int> f = async(launch::async,apdebug::call_main);
 	if (f.wait_for(milliseconds(apdebug::hardlim)) == future_status::timeout)
 	{
-		cerr << "MLE/TLE: " << "Hard time limit(" << apdebug::hardlim << ") exceeded.";
-		exit(0);
+		cerr << "MLE/TLE: " << "Hard time limit( " << apdebug::hardlim << "ms ) exceeded.";
+		abort();
 	}
 	try
 	{
