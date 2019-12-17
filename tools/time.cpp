@@ -1,3 +1,5 @@
+//for libstdc++
+#define _GLIBCXX_HAVE_QUICK_EXIT
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -12,6 +14,35 @@ using namespace std::chrono;
 namespace ns_run
 {
 inline int run(int argc, char *c[]);
+}
+/*---Signal Handlers---*/
+extern "C" void apdebug_sig(int s)
+{
+	cerr << "RE: Received SIG";
+	switch (s)
+	{
+	case SIGSEGV:
+		cerr << "SEGV";
+		break;
+	case SIGFPE:
+		cerr << "FPE";
+		break;
+	case SIGINT:
+		cerr << "INT";
+		break;
+	case SIGILL:
+		cerr << "ILL";
+		break;
+	case SIGTERM:
+		cerr << "TERM";
+		break;
+	}
+	cerr << endl;
+	quick_exit(0);
+}
+extern "C" void apdebug_abrt(int s)
+{
+	quick_exit(0);
 }
 namespace apdebug
 {
@@ -51,47 +82,23 @@ private:
 	bool stat;
 };
 timer<steady_clock, milliseconds, microseconds> t("ms", "us", tlim);
-/*---Signal Handlers---*/
-extern "C" void sig(int s)
-{
-	cerr << "RE: Received SIG";
-	switch (s)
-	{
-	case SIGSEGV:
-		cerr << "SEGV";
-		break;
-	case SIGFPE:
-		cerr << "FPE";
-		break;
-	case SIGINT:
-		cerr << "INT";
-		break;
-	case SIGILL:
-		cerr << "ILL";
-		break;
-	case SIGTERM:
-		cerr << "TERM";
-		break;
-	}
-	cerr << endl;
-	abort();
-}
 void regsig()
 {
-	signal(SIGSEGV, sig);
-	signal(SIGFPE, sig);
-	signal(SIGILL, sig);
-	signal(SIGINT, sig);
-	signal(SIGTERM, sig);
+	signal(SIGSEGV, apdebug_sig);
+	signal(SIGFPE, apdebug_sig);
+	signal(SIGILL, apdebug_sig);
+	signal(SIGINT, apdebug_sig);
+	signal(SIGTERM, apdebug_sig);
+	signal(SIGABRT, apdebug_abrt);
 }
-void atex() noexcept
+void atex()
 {
 	t.stop();
 	t.print();
+	return;
 }
 int call_main()
 {
-	atexit(atex);
 	regsig();
 	t.start();
 	int ret = ns_run::run(ccmd, cmd);
@@ -113,6 +120,9 @@ int test()
 } // namespace apdebug
 int main(int argc, char *argv[])
 {
+	apdebug::regsig();
+	atexit(apdebug::atex);
+	ios_base::sync_with_stdio(false);
 	int beg = 1;
 #ifndef APINPROG
 	beg = 2;
@@ -151,7 +161,7 @@ int main(int argc, char *argv[])
 	{
 		cerr << "MLE/TLE: "
 			 << "Hard time limit( " << apdebug::hardlim << "ms ) exceeded.";
-		abort();
+		quick_exit(0);
 	}
 	try
 	{
@@ -160,12 +170,12 @@ int main(int argc, char *argv[])
 	catch (const exception &e)
 	{
 		cerr << "RE: Throw an exception what():" << e.what();
-		abort();
+		quick_exit(0);
 	}
 	catch (...)
 	{
 		cerr << "RE: Throw an unknown exception";
-		abort();
+		quick_exit(0);
 	}
 	apdebug::test();
 	return 0;
@@ -173,7 +183,6 @@ int main(int argc, char *argv[])
 namespace ns_run
 {
 #ifndef APINPROG
-
 inline int run(int argc, char *argv[])
 {
 	string cm(argv[0]);
