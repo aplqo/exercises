@@ -110,15 +110,15 @@ extern "C" void fpe_handler(int sig)
     cerr << "RE: Received SIGFPE: erroneous arithmetic operation such as divide by zero" << endl;
     cerr << "Exceptions raised:" << endl;
     if (fetestexcept(FE_DIVBYZERO))
-        cerr << " FE_DIVBYZERO: pole error occurred in an earlier floating-point operation";
+        cerr << " FE_DIVBYZERO: pole error occurred in an earlier floating-point operation" << endl;
     if (fetestexcept(FE_INEXACT))
-        cerr << " FE_INEXACT: inexact result: rounding was necessary to store the result of an earlier floating-point operation";
+        cerr << " FE_INEXACT: inexact result: rounding was necessary to store the result of an earlier floating-point operation" << endl;
     if (fetestexcept(FE_INVALID))
-        cerr << " FE_INVALID: domain error occurred in an earlier floating-point operation ";
+        cerr << " FE_INVALID: domain error occurred in an earlier floating-point operation " << endl;
     if (fetestexcept(FE_OVERFLOW))
-        cerr << " FE_OVERFLOW: the result of the earlier floating-point operation was too large to be representable";
+        cerr << " FE_OVERFLOW: the result of the earlier floating-point operation was too large to be representable" << endl;
     if (fetestexcept(FE_UNDERFLOW))
-        cerr << " FE_UNDERFLOW: the result of the earlier floating-point operation was subnormal with a loss of precision";
+        cerr << " FE_UNDERFLOW: the result of the earlier floating-point operation was subnormal with a loss of precision" << endl;
     quick_exit(0);
 }
 void regsig()
