@@ -9,6 +9,7 @@
                 "/Zi",
                 "/EHsc",
                 "/DAPDEBUG",
+                "/Zc:__cplusplus",
                 "/Fe:",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "${file}"
