@@ -26,7 +26,7 @@ namespace checked
         {
         }
         template <class U>
-        auto operator+(U r)
+        inline auto operator+(U r)
         {
             auto ret = dat + r;
             if (ret - dat != r || ((r > 0) ^ (ret > this->dat)))
@@ -34,7 +34,7 @@ namespace checked
             return ret;
         }
         template <class U>
-        auto operator*(U a)
+        inline auto operator*(U a)
         {
             auto ret = dat * a.dat;
             if (ret / a.dat != this->dat)
@@ -42,7 +42,7 @@ namespace checked
             return ret;
         }
         template <class U>
-        auto operator-(U a)
+        inline auto operator-(U a)
         {
             auto ret = dat - a.dat;
             if (ret + a.dat != this->dat || ((a.dat < 0) ^ (ret < this->dat)))
@@ -50,7 +50,7 @@ namespace checked
             return ret;
         }
         template <class U>
-        auto operator/(U r)
+        inline auto operator/(U r)
         {
             if (r == 0)
             {
@@ -61,7 +61,7 @@ namespace checked
         }
         operator T() { return dat; };
         /*Increment and decrement*/
-        typename CheckedInteger<T>& operator++()
+        inline typename CheckedInteger<T>& operator++()
         {
             T ret = dat;
             ++dat;
@@ -69,7 +69,7 @@ namespace checked
                 err();
             return *this;
         }
-        typename CheckedInteger<T> operator++(int t)
+        inline typename CheckedInteger<T> operator++(int t)
         {
             T ret = dat;
             ++dat;
@@ -77,7 +77,7 @@ namespace checked
                 err();
             return ret;
         }
-        typename CheckedInteger<T>& operator--()
+        inline typename CheckedInteger<T>& operator--()
         {
             T ret = dat;
             --dat;
@@ -85,7 +85,7 @@ namespace checked
                 err();
             return *this;
         }
-        typename CheckedInteger<T> operator--(int t)
+        inline typename CheckedInteger<T> operator--(int t)
         {
             T ret = dat;
             --dat;
@@ -95,7 +95,7 @@ namespace checked
         }
 #define oper(op)       \
     template <class U> \
-    auto operator op(U r) { return dat op r; }
+    inline auto operator op(U r) { return dat op r; }
         oper(%);
         /*Bitwise arithmetic operators*/
         oper(&);
@@ -114,7 +114,7 @@ namespace checked
         /*Binary arithmetic operators*/
 #define assop(op)      \
     template <class U> \
-    typename CheckedInteger<T> operator op##=(U a) { return *this = *this op a; }
+    inline typename CheckedInteger<T> operator op##=(U a) { return *this = *this op a; }
         assop(/);
         assop(*);
         assop(-);
@@ -126,17 +126,17 @@ namespace checked
         assop(>>);
         assop(<<);
 #undef assop
-        auto operator~()
+        inline auto operator~()
         {
             return ~dat;
         }
         /*Stream extraction and insertion*/
-        ostream operator<<(ostream& os)
+        inline ostream operator<<(ostream& os)
         {
             os << dat;
             return os;
         }
-        istream operator>>(istream& is)
+        inline istream operator>>(istream& is)
         {
             is >> dat;
             return is;
