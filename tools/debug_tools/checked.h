@@ -1,6 +1,6 @@
-#ifndef CHECKED_CPP
-#define CHECKED_CPP
-#include "debug_tools/output.cpp"
+#ifndef CHECKED_H
+#define CHECKED_H
+#include "debug_tools/output.h"
 #include <cstdlib>
 #include <iostream>
 #include <type_traits>

@@ -5,7 +5,7 @@
 #ifdef __GNUC__
 #define quick_exit(a) abort()
 #endif
-#include "debug_tools/output.cpp"
+#include "debug_tools/output.h"
 #include <cfenv>
 #include <chrono>
 #include <condition_variable>

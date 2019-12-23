@@ -1,5 +1,5 @@
-#ifndef OUTPUT_CPP
-#define OUTPUT_CPP
+#ifndef OUTPUT_H
+#define OUTPUT_H
 
 #if __cplusplus < 201103L
 #error ISO c++11 is required to use test program!
