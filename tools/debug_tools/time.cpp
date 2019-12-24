@@ -189,6 +189,11 @@ namespace apdebug_time
     {
         cerr << col::CYAN << "[Info] " << str << ": " << val << endl;
     }
+    void printT(int n, const char* in)
+    {
+        cerr << col::CYAN << "[Info] " << in << ": ";
+        cerr << n << "ms ( " << noshowpoint << (n / 1000.0) << "s )" << endl;
+    }
 } // namespace apdebug
 int main(int argc, char* argv[])
 {
@@ -233,8 +238,8 @@ int main(int argc, char* argv[])
             cerr << endl;
         }
     }
-    apdebug_time::info("Time limit", (to_string(apdebug_time::tlim) + "ms").c_str());
-    apdebug_time::info("Hard time limit", (to_string(apdebug_time::hardlim) + "ms").c_str());
+    apdebug_time::printT(apdebug_time::tlim, "Time limit");
+    apdebug_time::printT(apdebug_time::hardlim, "Hard time limit");
     cerr.flush();
     try
     {
