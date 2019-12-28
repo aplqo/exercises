@@ -231,7 +231,7 @@ int main(int argc, char* argv[])
             cerr << endl;
         }
     }
-    if (apdebug_time::out != nullptr || strlen(apdebug_time::testcmd) != 0)
+    if (apdebug_time::out != nullptr && strlen(apdebug_time::testcmd) != 0)
     {
         strcat(apdebug_time::testcmd, " ");
         strcat(apdebug_time::testcmd, apdebug_time::in);
