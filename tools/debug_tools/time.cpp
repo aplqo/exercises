@@ -174,10 +174,6 @@ namespace apdebug_time
         cerr << col::BLUE << "[Info] Start testing" << endl;
         cerr << col::NONE;
         cerr.flush();
-        strcat(testcmd, " ");
-        strcat(testcmd, in);
-        strcat(testcmd, " ");
-        strcat(testcmd, out);
         int ret = system(testcmd);
         if (ret)
             cerr << col::RED << "[WA] Test program finished return " << ret << endl;
@@ -215,10 +211,7 @@ int main(int argc, char* argv[])
             apdebug_time::out = argv[i];
         }
         else if (!strcmp(argv[i], "-test"))
-        {
             strcpy(apdebug_time::testcmd, argv[++i]);
-            apdebug_time::info("Test command", argv[i]);
-        }
         else if (!strcmp(argv[i], "-time"))
         {
             apdebug_time::tlim = atoi(argv[++i]);
@@ -237,6 +230,14 @@ int main(int argc, char* argv[])
             }
             cerr << endl;
         }
+    }
+    if (apdebug_time::out != nullptr || strlen(apdebug_time::testcmd) != 0)
+    {
+        strcat(apdebug_time::testcmd, " ");
+        strcat(apdebug_time::testcmd, apdebug_time::in);
+        strcat(apdebug_time::testcmd, " ");
+        strcat(apdebug_time::testcmd, apdebug_time::out);
+        apdebug_time::info("Test command", apdebug_time::testcmd);
     }
     apdebug_time::printT(apdebug_time::tlim, "Time limit");
     apdebug_time::printT(apdebug_time::hardlim, "Hard time limit");
