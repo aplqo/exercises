@@ -30,7 +30,9 @@ namespace apdebug_time
     using namespace apdebug_out;
     unsigned int tlim = 1000, hardlim = tlim * 10;
     char *cmd[100], ccmd = 1;
-    char testcmd[100], *out = nullptr, *in = nullptr;
+    string testcmd;
+    bool ctestcmd = false;
+    char *out = nullptr, *in = nullptr, *ans = nullptr;
 
     /*-----Timer-----*/
     template <class tim, class uni1, class uni2>
@@ -169,12 +171,12 @@ namespace apdebug_time
     }
     int test()
     {
-        if (out == nullptr || strlen(testcmd) == 0)
+        if (testcmd.empty())
             return 0;
         cerr << col::BLUE << "[Info] Start testing" << endl;
         cerr << col::NONE;
         cerr.flush();
-        int ret = system(testcmd);
+        int ret = system(testcmd.c_str());
         if (ret)
             cerr << col::RED << "[WA] Test program finished return " << ret << endl;
         else
@@ -211,7 +213,7 @@ int main(int argc, char* argv[])
             apdebug_time::out = argv[i];
         }
         else if (!strcmp(argv[i], "-test"))
-            strcpy(apdebug_time::testcmd, argv[++i]);
+            apdebug_time::testcmd = argv[++i];
         else if (!strcmp(argv[i], "-time"))
         {
             apdebug_time::tlim = atoi(argv[++i]);
@@ -230,14 +232,28 @@ int main(int argc, char* argv[])
             }
             cerr << endl;
         }
+        else if (!strcmp(argv[i], "-testargs"))
+        {
+            apdebug_time::ctestcmd = true;
+            int num = atoi(argv[++i]);
+            ++i;
+            cerr << apdebug_time::col::CYAN << "[Info] Test command: ";
+            for (int j = 0; j < num; ++j, ++i)
+                apdebug_time::testcmd = apdebug_time::testcmd + " " + argv[i];
+            cerr << apdebug_time::testcmd << endl;
+        }
     }
-    if (apdebug_time::out != nullptr && strlen(apdebug_time::testcmd) != 0)
+    if ((!apdebug_time::ctestcmd) && (!apdebug_time::testcmd.empty()))
     {
-        strcat(apdebug_time::testcmd, " ");
-        strcat(apdebug_time::testcmd, apdebug_time::in);
-        strcat(apdebug_time::testcmd, " ");
-        strcat(apdebug_time::testcmd, apdebug_time::out);
-        apdebug_time::info("Test command", apdebug_time::testcmd);
+        const auto cat = [](char* str) -> void {
+            if (str == nullptr)
+                return;
+            apdebug_time::testcmd = apdebug_time::testcmd + " " + str;
+        };
+        cat(apdebug_time::in);
+        cat(apdebug_time::out);
+        cat(apdebug_time::ans);
+        apdebug_time::info("Test command", apdebug_time::testcmd.c_str());
     }
     apdebug_time::printT(apdebug_time::tlim, "Time limit");
     apdebug_time::printT(apdebug_time::hardlim, "Hard time limit");
@@ -259,8 +275,8 @@ int main(int argc, char* argv[])
              << col::RED << "[RE] Throw an unknown exception";
         quick_exit(0);
     }
-    apdebug_time::test();
-    return 0;
+    int ret = apdebug_time::test();
+    return ret;
 }
 namespace ns_run
 {
