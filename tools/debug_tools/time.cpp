@@ -49,8 +49,7 @@ namespace apdebug_time
         }
         inline void start()
         {
-            cerr << col::BLUE << "[Info] Start program" << endl;
-            cerr << col::NONE;
+            cerr << col::BLUE << "[Info] Start program" << col::NONE << endl;
             stat = true;
             watch = thread(&timer::watchdog, this);
             beg = tim::now();
@@ -173,8 +172,7 @@ namespace apdebug_time
     {
         if (testcmd.empty())
             return 0;
-        cerr << col::BLUE << "[Info] Start testing" << endl;
-        cerr << col::NONE;
+        cerr << col::BLUE << "[Info] Start testing" << col::NONE << endl;
         cerr.flush();
         int ret = system(testcmd.c_str());
         if (ret)
@@ -275,6 +273,7 @@ int main(int argc, char* argv[])
              << col::RED << "[RE] Throw an unknown exception";
         quick_exit(0);
     }
+    fflush(stdout);
     int ret = apdebug_time::test();
     return ret;
 }
