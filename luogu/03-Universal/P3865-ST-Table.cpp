@@ -34,8 +34,10 @@ num getLog(int x)
         return lg[x];
     return x > 1 ? lg[x] = getLog(x >> 1) + 1 : 0;
 }
-inline void init()
+inline void init(num dat[maxn], int len)
 {
+    for (int i = 0; i < len; ++i)
+        table[i][0] = dat[i];
     for (num j = 1; j <= getLog(n); ++j)
         for (int i = 0; i + (1 << j) <= n; ++i)
             table[i][j] = max(table[i][j - 1], table[i + (1 << j - 1)][j - 1]); // i + 1 <<j - 1 = (i + 1)<<(j -1 )
@@ -51,8 +53,8 @@ int main()
     int m;
     read(n);
     read(m);
-    for_each(table, table + n, [](num(&t)[maxl]) -> void { read(t[0]); });
-    init();
+    for_each(dat, dat + n, [](num(&t)) -> void { read(t); });
+    init(dat, n);
     for (int i = 0; i < m; ++i)
     {
         int l, r;
