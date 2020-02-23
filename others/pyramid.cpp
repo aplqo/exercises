@@ -8,33 +8,25 @@ using namespace std;
 const int maxn = 3000;
 constexpr int ninf = numeric_limits<int>::min() / 2;
 
-struct obj
-{
-    int w;
-    int v;
-} o[maxn + 10];
-int ans[maxn * 2 + 10][maxn + 10];
+int w[maxn + 10], ans[maxn + 10];
 
 int main()
 {
 #ifndef APTEST
     ios_base::sync_with_stdio(false);
 #endif
-    unsigned int n, m;
+    int n, m;
+    int bas;
     cin >> n >> m;
-    for (unsigned int i = 0; i <= n; ++i)
+    cin >> bas;
+    for (unsigned int i = 1; i <= n; ++i)
     {
-        cin >> o[i].w;
-        o[i].v = i;
+        cin >> w[i];
+        w[i] -= bas;
     }
-    for (unsigned int c = 1; c <= n + m; ++c)
-    {
-        fill(ans[c] + 1, ans[c] + n + 1, ninf);
-        for (unsigned int v = 1; v <= n; ++v)
-            for (unsigned int i = 0; i <= n; ++i)
-                if (v >= o[i].v)
-                    ans[c][v] = max({ ans[c - 1][v - o[i].v] + o[i].w, ans[c][v] });
-    }
-    cout << ans[n + m][n] << endl;
+    for (unsigned int c = 0; c <= n; ++c)
+        for (unsigned int v = c; v <= n; ++v)
+            ans[v] = max(ans[v], ans[v - c] + w[c]);
+    cout << ans[n] + (n + m) * bas << endl;
     return 0;
 }
