@@ -12,7 +12,7 @@ const int maxn = 16;
 constexpr res_t maxs = (res_t(1) << maxn);
 constexpr int inf = INT_MAX;
 
-int dis[maxn + 10][maxn + 10], f[maxs + 10];
+int dis[maxn + 10][maxn + 10], f[maxs + 10][maxn + 10];
 unsigned int lg[maxs + 10];
 
 inline void init(const unsigned int n)
@@ -20,8 +20,8 @@ inline void init(const unsigned int n)
     res_t t = 1;
     for (unsigned int i = 0; i < n; ++i, t <<= 1)
     {
+        fill(f[t], f[t] + n, 0);
         lg[t] = i;
-        f[t] = 0;
     }
 }
 int main()
@@ -34,19 +34,21 @@ int main()
     for (unsigned i = 0; i < n; ++i)
         for (unsigned int j = 0; j < n; ++j)
             cin >> dis[i][j];
-    fill(f + 1, f + (res_t(1) << n), inf);
+    for_each(f + 1, f + (1 << n), [&n](int(&i)[maxn + 10]) { fill(i, i + n, inf); });
     init(n);
 
     for (res_t i = 1; i < res_t(1) << n; ++i)
     {
-        for (res_t t = i; t; t -= lowbit(t))
+        for (res_t j = i; j; j -= lowbit(j))
         {
-            const unsigned int p = lg[lowbit(t)];
-            for (res_t k = i; k; k -= lowbit(k))
-                if (lg[lowbit(k)] != p)
-                    f[i] = min(f[i], f[i ^ lowbit(t)] + dis[lg[lowbit(k)]][p]);
+            const unsigned int from = lg[lowbit(j)];
+            for (res_t k = ~i & (1 << n) - 1; k; k -= lowbit(k))
+            {
+                const unsigned int to = lg[lowbit(k)];
+                f[i | lowbit(k)][to] = min(f[i | lowbit(k)][to], f[i][from] + dis[from][to]);
+            }
         }
     }
-    cout << f[(res_t(1) << n) - 1] << endl;
+    cout << *min_element(f[(1 << n) - 1], f[(1 << n) - 1] + n) << endl;
     return 0;
 }
