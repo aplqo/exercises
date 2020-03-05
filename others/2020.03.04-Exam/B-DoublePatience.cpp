@@ -6,8 +6,8 @@
 using namespace std;
 using num_t = unsigned long long;
 using real_t = long double;
-const int maxx = 9, maxy = 4;
-typedef num_t array_t[4][4][4][4][4][4][4][4][4];
+template <class T>
+using array_t = T[5][5][5][5][5][5][5][5][5];
 
 struct state
 {
@@ -21,51 +21,57 @@ struct state
     unsigned int remain() const
     {
         unsigned int ret = 0;
-        for (unsigned int i = 0; i < 9; ++i)
-            ret += 9 - pos[i];
+        for (auto i : pos)
+            ret += 4 - i;
         return ret;
     }
-    inline num_t& operator[](array_t dat) const
+    template <class T>
+    inline T& operator[](array_t<T> dat) const
     {
         return dat[pos[0]][pos[1]][pos[2]][pos[3]][pos[4]][pos[5]][pos[6]][pos[7]][pos[8]];
     }
-    unsigned int pos[maxx] = {};
+    unsigned int pos[9] = {};
 };
-array_t suc, all;
-unsigned int dat[maxx + 10][maxy + 10];
+array_t<real_t> f;
+array_t<bool> vis;
+unsigned int dat[10][5];
 
-inline void fun(const state s)
+real_t fun(const state&& s)
 {
+    if (!s.remain())
+        return s[f] = 1;
+    if (s[vis])
+        return s[f];
+    s[vis] = true;
+    unsigned int p = 0;
     for (unsigned int i = 0; i < 9; ++i)
+    {
+        if (s.pos[i] > 3)
+            continue;
         for (unsigned int j = i + 1; j < 9; ++j)
         {
-            if (dat[s.pos[i]] != dat[s.pos[j]] || s.pos[i] >= 4 || s.pos[j] >= 4)
+            if (s.pos[j] > 3 || dat[i][s.pos[i]] != dat[j][s.pos[j]])
                 continue;
-            state r = s.select(i, j);
-            if (!r.remain())
-            {
-                ++s[all];
-                ++s[suc];
-                continue;
-            }
-            fun(r);
-            s[all] += r[all];
-            s[suc] += r[suc];
+            ++p;
+            s[f] += fun(s.select(i, j));
         }
+    }
+    s[f] = p ? s[f] / real_t(p) : 0;
+    return s[f];
 }
 int main()
 {
-    for (unsigned int i = 0; i < maxx; ++i)
+    for (unsigned int i = 0; i < 9; ++i)
     {
-        for (unsigned int j = 0; j < maxy; ++j)
+        for (unsigned int j = 0; j < 3; ++j)
         {
-            dat[i][j] = cin.get();
+            dat[i][3 - j] = cin.get();
             cin.ignore(2, ' ');
         }
-        cin.ignore(1, '\n');
+        dat[i][0] = cin.get();
+        cin.ignore(2, '\n');
     }
-    state ini;
-    fun(ini);
-    printf("%.6Lf\n", real_t(ini[suc]) / ini[all]);
+    fun(state());
+    printf("%.6Lf\n", state()[f]);
     return 0;
 }

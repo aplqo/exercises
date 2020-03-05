@@ -57,11 +57,13 @@ inline void fact(num_t v)
     if (v > 1)
     {
         factor* p = find_if(pcur, cur, [&v](const factor& i) { return i.val == v; });
-        p->val = v;
-        p->tmp[0] = p->tmp[1] = 0;
-        p->tmp[pos] = 1;
         if (cur == p)
+        {
+            p->val = v;
+            p->tmp[0] = p->tmp[1] = 0;
             ++cur;
+        }
+        p->tmp[pos] = 1;
     }
 }
 template <class T, unsigned int typ>
@@ -86,7 +88,6 @@ inline void solve()
 {
     num_t a0, a1, b0, b1, ans = 1;
     cin >> a0 >> a1 >> b0 >> b1;
-    euler(sqrt(max({ a0, a1, b0, b1 })) + 1);
     cur = pcur;
     for_each(res, pcur, [](factor& i) {i.ans[LEFT]=0;i.ans[RIGHT]=inf;i.fixed=false; });
     fact<OPER>(a0);
@@ -113,6 +114,7 @@ int main()
 #ifndef APTEST
     ios_base::sync_with_stdio(false);
 #endif
+    euler(maxq);
     unsigned int n;
     cin >> n;
     for (unsigned int i = 0; i < n; ++i)
