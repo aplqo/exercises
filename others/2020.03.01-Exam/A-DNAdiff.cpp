@@ -22,7 +22,7 @@ public:
     {
         return has[end] - has[beg - 1] * po[end - beg + 1];
     }
-    int distance(const int pos)
+    int Distance(const int pos)
     {
         return length - pos + 1;
     }
@@ -46,64 +46,33 @@ bool vis[maxn + 10][maxn + 10];
 
 inline int One(const int p1, const int p2)
 {
-    const char* p;
-    char c;
-    int beg, end;
-    int ret = 0;
-    if (t1.distance(p1) == 1 && t2.distance(p2) == 1)
+    static const auto check = [](int beg, const mystring& s, char c) -> int {
+        return find(s.str + beg, s.str + t2.length + 1, c) != s.str + s.length + 1;
+    };
+    if (t1.Distance(p1) == 1 && t2.Distance(p2) == 1)
         return mem[p1][p2] = t1.str[p1] == t2.str[p2] ? 1 : 0;
-    else if (t1.distance(p1) == 1)
-    {
-        c = t1.str[p1];
-        beg = p2;
-        end = t2.length;
-        p = t2.str;
-        ret = (t2.distance(p2) - 1) * (-2);
-    }
+    else if (t1.Distance(p1) == 1)
+        return (t2.Distance(p2) - 1) * (-2) + check(p2, t2, t1.str[p1]);
     else
-    {
-        c = t2.str[p2];
-        beg = p1;
-        end = t1.length;
-        p = t1.str;
-        ret = (t1.distance(p1) - 1) * (-2);
-    }
-    for (; beg <= end; ++beg)
-        if (p[beg] == c)
-        {
-            ++ret;
-            break;
-        }
-    return ret;
+        return (t1.Distance(p1) - 1) * (-2) + check(p1, t1, t2.str[p2]);
 }
 int fun(const int p1, const int p2)
 {
-    if (t1.distance(p1) == 1 || t2.distance(p2) == 1)
+    if (t1.Distance(p1) == 1 || t2.Distance(p2) == 1)
         return One(p1, p2);
     else if (p1 > t1.length && p2 > t2.length)
         return 0;
     else if (p1 > t1.length)
-        return t2.distance(p2) * (-2);
+        return t2.Distance(p2) * (-2);
     else if (p2 > t2.length)
-        return t1.distance(p1) * (-2);
+        return t1.Distance(p1) * (-2);
     if (vis[p1][p2])
         return mem[p1][p2];
     vis[p1][p2] = true;
-
-    const int d = min(t1.distance(p1), t2.distance(p2));
-    int l = 0, r = d - 1;
-    while (l <= r)
-    {
-        int m = (l + r) >> 1;
-        if (t1.Gethash(p1, p1 + m) == t2.Gethash(p2, p2 + m))
-            l = m + 1;
-        else
-            r = m - 1;
-    }
-    if (l != d)
-        return mem[p1][p2] = max({ fun(p1 + l, p2 + l + 1) - 2, fun(p1 + l + 1, p2 + l) - 2, fun(p1 + l + 1, p2 + l + 1) }) + l;
+    if (t1.str[p1] == t2.str[p2])
+        return mem[p1][p2] = fun(p1 + 1, p2 + 1) + 1;
     else
-        return mem[p1][p2] = (max(t1.distance(p1), t2.distance(p2)) - d) * (-2) + l;
+        return mem[p1][p2] = max({ fun(p1 + 1, p2 + 1), fun(p1 + 1, p2) - 2, fun(p1, p2 + 1) - 2 });
 }
 int main()
 {
@@ -119,7 +88,7 @@ int main()
     {
         const int end = max(t1.length, t2.length) - min(t1.length, t2.length) + 1;
         for (int i = 1; i <= end; ++i)
-            ans = max(ans, fun(i, i));
+            ans = max(ans, fun(1, i) + (i - 1) * (-2));
     }
     else
         ans = fun(1, 1);

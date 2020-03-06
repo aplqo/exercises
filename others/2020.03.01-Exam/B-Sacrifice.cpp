@@ -2,64 +2,88 @@
 #include "debug_tools/program.h"
 #endif
 #include <algorithm>
-#include <functional>
+#include <cstring>
 #include <iostream>
-#include <limits>
 #include <queue>
-#include <utility>
-#include <vector>
+#include <stack>
 using namespace std;
-using num_t = unsigned int;
-constexpr num_t inf = numeric_limits<num_t>::max();
 const int maxn = 1000000, maxm = 10;
 
-unsigned int digit[maxm + 10];
-num_t ans[maxn + 10];
-bool vis[maxn + 10];
-
-inline void dijkstra(const unsigned int n, const unsigned int m)
+struct node
 {
-    using pair_t = pair<num_t, unsigned int>;
-    priority_queue<pair_t, vector<pair_t>, greater<pair_t>> q;
+    node() = default;
+    inline node(unsigned int num, node* pre)
+        : num(num)
+        , pre(pre)
+        , vis(stamp)
+    {
+    }
+    unsigned int num;
+    unsigned int vis = 0;
+    node* pre = nullptr;
+
+    static unsigned int stamp;
+} f[maxn + 10];
+unsigned int node::stamp = 0;
+unsigned int digit[maxm + 10];
+
+inline void bfs(const unsigned int n, const unsigned int m)
+{
+    queue<unsigned int> q;
     for (unsigned int* i = digit; i < digit + m; ++i)
-        if (*i)
-        {
-            ans[(*i) % n] = *i;
-            q.push(make_pair(*i, (*i) % n));
-        }
+    {
+        const unsigned int to = *i % n;
+        if (!*i)
+            continue;
+        if (f[to].vis != node::stamp || f[to].num > *i)
+            f[to] = node(*i, nullptr);
+    }
+    for (unsigned int i = 0; i < min<unsigned int>(n, 10); ++i)
+        if (f[i].vis == node::stamp)
+            q.push(i);
     while (!q.empty())
     {
-        pair_t cur = q.top();
+        const unsigned int cur = q.front();
         q.pop();
-        if (vis[cur.second])
-            continue;
-        vis[cur.second] = true;
+        node* const pn = f + cur;
         for (unsigned int* i = digit; i < digit + m; ++i)
         {
-            num_t to = (cur.second * 10 + *i) % n;
-            if (ans[to] > (cur.first * 10 + *i))
-            {
-                ans[to] = cur.first * 10 + *i;
-                q.push(make_pair(ans[to], to));
-            }
+            const unsigned int to = (cur * 10 + *i) % n;
+            if (f[to].vis == node::stamp)
+                continue;
+            f[to] = node(*i, pn);
+            q.push(to);
         }
     }
+}
+inline void print()
+{
+    stack<unsigned int> tmp;
+    for (node* i = f; i; i = i->pre)
+        tmp.push(i->num);
+    while (!tmp.empty())
+    {
+        cout << tmp.top();
+        tmp.pop();
+    }
+    cout << endl;
 }
 inline void solve()
 {
     unsigned int n, m;
     cin >> n >> m;
+    ++node::stamp;
     for_each(digit, digit + m, [](unsigned int& i) { cin >> i; });
-    fill(ans, ans + n + 1, inf);
-    fill(vis, vis + n + 1, false);
-    dijkstra(n, m);
-    cout << (ans[0] == inf ? 0 : ans[0]) << endl;
+    sort(digit, digit + m);
+    bfs(n, m);
+    if (f[0].vis == node::stamp)
+        print();
+    else
+        cout << "0" << endl;
 }
 int main()
 {
-#ifndef APTEST
     ios_base::sync_with_stdio(false);
-#endif
     unsigned int t;
     cin >> t;
     for (unsigned int i = 0; i < t; ++i)
