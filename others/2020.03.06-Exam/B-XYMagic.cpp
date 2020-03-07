@@ -4,64 +4,12 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <map>
+#include <numeric>
 using namespace std;
 using num_t = unsigned int;
-const int maxn = 1e6, maxb = 1000, maxc = 3e6;
+const int maxn = 1e6, maxb = 1000;
 
-class stree
-{
-public:
-    stree(const num_t l, const num_t r)
-        : lv(l)
-        , rv(r)
-        , mv((l + r) >> 1) {};
-    void modify(const num_t pos, const bool d)
-    {
-        static auto do_modify = [&d, &pos](stree*(&ptr), num_t lv, num_t rv) {
-            if (!ptr)
-                ptr = new stree(lv, rv);
-            ptr->modify(pos, d);
-            if (!ptr->val)
-            {
-                delete ptr;
-                ptr = nullptr;
-            }
-        };
-        if (rv - lv == 1)
-        {
-            if (d)
-                ++val;
-            else
-                --val;
-            return;
-        }
-        if (pos < mv)
-            do_modify(lc, lv, mv);
-        else
-            do_modify(rc, mv, rv);
-        val = GetVal(lc, lv, mv) + GetVal(rc, mv, rv);
-    }
-    unsigned int query(const num_t l, const num_t r) const
-    {
-        if (rv - lv == 1 || (l == lv && r == rv))
-            return val;
-        if (r <= mv)
-            return GetVal(lc, l, r);
-        else if (l >= mv)
-            return GetVal(rc, l, r);
-        else
-            return GetVal(lc, l, r) + GetVal(rc, l, r);
-    }
-
-private:
-    static inline unsigned int GetVal(const stree* ptr, const num_t l, const num_t r)
-    {
-        return ptr ? ptr->query(l, r) : 0;
-    }
-    const num_t lv, rv, mv;
-    stree *lc = nullptr, *rc = nullptr;
-    unsigned int val = 0;
-};
 num_t dat[maxn + 10];
 class block
 {
@@ -71,8 +19,15 @@ public:
     {
         this->lv = l;
         this->rv = r;
-        for (const num_t* i = dat + l; i < dat + r; ++i)
-            val.modify(*i, true);
+        for (num_t* i = dat + l; i < dat + r; ++i)
+        {
+            auto it = ma.find(*i);
+            if (it == ma.end())
+                ma[*i] = 1;
+            else
+                ++(it->second);
+        }
+        ready = false;
     }
     void modify(unsigned int l, unsigned int r, const num_t v)
     {
@@ -83,27 +38,50 @@ public:
         }
         for (num_t* i = dat + l; i < dat + r; ++i)
         {
-            val.modify(*i, false);
+            auto it = ma.find(*i);
+            --(it->second);
+            if (!it->second)
+                ma.erase(it);
             *i += v;
-            val.modify(*i, true);
+            it = ma.find(*i);
+            if (it == ma.end())
+                ma[*i] = 1;
+            else
+                ++(it->second);
         }
     }
     unsigned int query(unsigned int l, unsigned int r, const num_t v)
     {
         if (v < off)
             return r - l;
-        if (v > maxc)
-            return 0;
         const num_t d = v - off;
         if (l == lv && r == rv)
-            return val.query(d, maxc);
-        return count_if(dat + lv, dat + rv, [&d](const num_t i) { return i >= d; });
+        {
+            if (!ready)
+            {
+                num = 0;
+                for (auto i : ma)
+                {
+                    seq[num + 1] = i.first;
+                    result[num + 1] = i.second;
+                    ++num;
+                }
+                partial_sum(result + 1, result + 1 + num, result + 1);
+                ready = true;
+            }
+            unsigned int pos = lower_bound(seq + 1, seq + 1 + num, d) - seq;
+            return pos == num + 1 ? 0 : result[num] - result[pos - 1];
+        }
+        return count_if(dat + l, dat + r, [&d](const num_t i) { return i >= d; });
     }
 
 private:
     num_t off = 0;
+    map<num_t, unsigned int> ma;
+    bool ready = false;
+    num_t seq[maxb + 10];
+    unsigned int result[maxb + 10], num = 0;
     unsigned int lv, rv;
-    stree val = stree(0, maxc);
 } blk[maxb + 10];
 unsigned int bsize;
 
