@@ -3,16 +3,16 @@
 #endif
 #include <cstdio>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <utility>
 using namespace std;
 using num_t = long long;
 using pair_t = pair<num_t, num_t>; // first: k,second: p
-const int maxn = 6, maxp = 4, maxm = 150;
+const int maxn = 6, maxp = 4, maxm = 150, maxt = maxm * maxm * maxm;
 
 num_t po[maxm + 10][maxp + 10];
 pair_t f[maxn + 10];
-map<num_t, unsigned int> half;
+unordered_map<num_t, unsigned int> half;
 unsigned int ans = 0;
 
 inline void GetPow(const num_t m)
@@ -67,6 +67,7 @@ int main()
     scanf("%d%lld", &n, &m);
     for (pair_t* i = f; i < f + n; ++i)
         scanf("%lld%lld", &(i->first), &(i->second));
+    half.reserve(maxt);
     GetPow(m);
     dfs1(n / 2, m, 0);
     dfs2(n / 2, n, m, 0);

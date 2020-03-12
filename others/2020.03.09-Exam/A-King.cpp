@@ -3,56 +3,64 @@
 #endif
 #include <iostream>
 using namespace std;
-#define lowbit(i) ((i) & -(i))
-#define bit(i, n) ((1 << (i)) & n)
-#define cli(i, n) (~(1 << (i)) & n)
-using num_t = unsigned int;
-static const int maxn = 9;
+using num_t = unsigned long long;
+const int maxn = 10, maxc = 890, maxs = (1 << maxn) - 1;
 
-static unsigned int lg[(1 << 9) + 10];
-static num_t mem[(1 << 9) - 1][maxn + 10][maxn + 10];
-static unsigned int row;
+unsigned int cnt[maxc + 10], st[maxc + 10], scur;
+num_t f[maxc + 10][maxn + 10][maxn * maxn + 10];
 
-inline void GetLog(const unsigned int n)
+inline unsigned int popcount(unsigned int n)
 {
-    unsigned int i = 1;
-    for (unsigned int t = 0; t <= n; ++t, i <<= 1)
-        lg[i] = t;
+    unsigned int ret = 0;
+    for (unsigned int t = 1; n; t <<= 1)
+        if (n & t)
+        {
+            ++ret;
+            n ^= t;
+        }
+    return ret;
 }
-static num_t fun(const unsigned int s, const unsigned int uv, const unsigned int sel, const unsigned int n, const unsigned int k)
+inline void GetVavid(const unsigned int n)
 {
-    if (!n || !k)
-        return k == 0;
-    if (mem[s][n][k])
-        return mem[s][n][k];
-    const unsigned int con = s & uv;
-    const auto vavid = [con, sel](const unsigned int i) -> bool {
-        return (i < 1 || bit(i - 1, sel)) && (i == row - 1 || bit(i + 1, sel)) && bit(i, con) && i < row;
-    };
-    unsigned int i = 0;
+    scur = 0;
+    for (unsigned int i = 0; i < (1 << n); ++i)
     {
-        unsigned int t = con;
-        for (i = lg[lowbit(t)]; t && !vavid(i); i = lg[lowbit(t)])
-            t -= lowbit(t);
+        if (i & (i << 1) || i & (i >> 1))
+            continue;
+        st[scur] = i;
+        cnt[scur] = popcount(i);
+        f[scur][0][cnt[scur]] = 1;
+        ++scur;
     }
-    if (vavid(i))
-    {
-        const unsigned int msk = (i ? cli(i - 1, s) : s) & (i < row - 1 ? cli(i + 1, s) : s);
-        mem[s][n][k] += fun(cli(i, s) & msk, uv, cli(i, sel), n, k - 1);
-        mem[s][n][k] += fun(s, cli(i, uv), sel, n, k);
-    }
-    else
-        mem[s][n][k] += fun((1 << row) - 1, s, (1 << row) - 1, n - 1, k);
-    return mem[s][n][k];
+}
+inline num_t dp(const unsigned int n, const unsigned int k)
+{
+    for (unsigned int i = 0; i < n; ++i)
+        f[0][i][0] = 1;
+    for (unsigned int i = 1; i <= k; ++i)
+        for (unsigned int j = 1; j < n; ++j)
+            for (unsigned int t = 0; t < scur; ++t)
+            {
+                if (cnt[t] > i)
+                    continue;
+                for (unsigned int v = 0; v < scur; ++v)
+                {
+                    if (st[t] & st[v] || st[t] & (st[v] << 1) || st[t] & (st[v] >> 1))
+                        continue;
+                    f[t][j][i] += f[v][j - 1][i - cnt[t]];
+                }
+            }
+    num_t ans = 0;
+    for (unsigned int i = 0; i < scur; ++i)
+        ans += f[i][n - 1][k];
+    return ans;
 }
 int main()
 {
-#ifndef APTEST
     ios_base::sync_with_stdio(false);
-#endif
-    unsigned int k;
-    cin >> row >> k;
-    GetLog(row);
-    cout << fun((1 << row) - 1, (1 << row) - 1, (1 << row) - 1, row, k) << endl;
+    unsigned int n, k;
+    cin >> n >> k;
+    GetVavid(n);
+    cout << dp(n, k) << endl;
     return 0;
 }

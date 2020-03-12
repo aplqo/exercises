@@ -60,6 +60,8 @@ inline void dijkstra(const unsigned int s)
         if (ptr->vis)
             continue;
         ptr->vis = true;
+        if (ptr->type == vertex::Server)
+            continue;
         for (edge* i = ptr->head; i; i = i->pre)
         {
             if (ptr->val + i->val < i->to->val)
