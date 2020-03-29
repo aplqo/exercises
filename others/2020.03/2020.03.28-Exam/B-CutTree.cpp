@@ -1,7 +1,6 @@
 #ifdef APTEST
 #include "debug_tools/program.h"
 #endif
-#include "debug_tools/checked.h"
 #include <iostream>
 using namespace std;
 using num_t = unsigned long long;
