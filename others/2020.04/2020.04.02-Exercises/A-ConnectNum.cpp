@@ -5,6 +5,7 @@
 #include "debug_tools/program.h"
 #endif
 #include <algorithm>
+#include <bitset>
 #include <iostream>
 #include <stack>
 using namespace std;
@@ -34,6 +35,7 @@ struct scc
     edge* head = nullptr;
     unsigned int con = 0;
     unsigned int cnt = 0, vis = 0;
+    bitset<maxn> c;
 
     static void CreateGraph();
 
@@ -117,6 +119,18 @@ unsigned int dfs(scc* const x, const unsigned int sta)
             ret += dfs(i->to.ps, sta);
     return ret;
 }
+inline void topological()
+{
+    for (unsigned int i = 0; i < sen - sc; ++i)
+    {
+        sc[i].c.set(i);
+        for (auto j = sc[i].head; j; j = j->pre)
+            sc[i].c |= j->to.ps->c;
+        for (unsigned int j = 0; j < sen - sc; ++j)
+            if (sc[i].c.test(j))
+                sc[i].con += sc[j].cnt;
+    }
+}
 
 int main()
 {
@@ -136,8 +150,7 @@ int main()
         if (!i->dfn)
             tarjan(i);
     scc::CreateGraph();
-    for (unsigned int i = 0; i < sen - sc; ++i)
-        sc[i].con = dfs(sc + i, i + 1);
+    topological();
     unsigned int ans = 0;
     for (unsigned int i = 1; i <= n; ++i)
         ans += ve[i].sc->con;

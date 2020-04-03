@@ -13,8 +13,10 @@ struct edge
 } ed[maxn * maxn + 10];
 edge* head[maxn + 10];
 
-bool mat[maxn + 10][maxn + 10];
-bool col[maxn + 10], vis[maxn + 10];
+int blk[maxn + 10][2];
+bool ans[maxn + 10][maxn + 10];
+bool mat[maxn + 10][maxn + 10], col[maxn + 10];
+unsigned int vis[maxn + 10];
 
 inline void AddEdge(const unsigned int from, const unsigned int to)
 {
@@ -31,9 +33,9 @@ inline void CreateGraph(const unsigned int n)
             if (!mat[i][j] && i != j)
                 AddEdge(i, j);
 }
-bool dfs(const unsigned int x)
+bool dfs(const unsigned int x, const unsigned int sta)
 {
-    vis[x] = true;
+    vis[x] = sta;
     for (edge* i = head[x]; i; i = i->pre)
     {
         if (vis[i->to] && col[i->to] == col[x])
@@ -41,10 +43,24 @@ bool dfs(const unsigned int x)
         else if (vis[i->to])
             continue;
         col[i->to] = !col[x];
-        if (!dfs(i->to))
+        if (!dfs(i->to, sta))
             return false;
     }
     return true;
+}
+inline int dp(const unsigned int n, const unsigned int s)
+{
+    for (unsigned int i = 1; i <= n; ++i)
+        ++blk[vis[i]][col[i]];
+    ans[0][0] = true;
+    for (unsigned int o = 1; o <= s; ++o)
+        for (int v = 1; v <= n; ++v)
+            ans[o][v] = (v >= blk[o][1] && ans[o - 1][v - blk[o][1]]) || (v >= blk[o][0] && ans[o - 1][v - blk[o][0]]);
+    int ret = 0;
+    for (int i = 0; i <= n; ++i)
+        if (ans[s][i])
+            ret = max(ret, min(i, static_cast<int>(n) - i));
+    return ret;
 }
 
 int main()
@@ -62,14 +78,13 @@ int main()
         mat[v][u] = true;
     }
     CreateGraph(n);
+    unsigned int s = 0;
     for (unsigned int i = 1; i <= n; ++i)
-        if (!vis[i] && !dfs(i))
+        if (!vis[i] && !dfs(i, ++s))
         {
             cout << "-1" << endl;
             return 0;
         }
-    const unsigned int c1 = count(col + 1, col + 1 + n, true);
-    const unsigned int c2 = count(col + 1, col + 1 + n, false);
-    cout << min(c1, c2) << endl;
+    cout << dp(n, s) << endl;
     return 0;
 }
