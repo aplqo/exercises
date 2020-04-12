@@ -8,7 +8,7 @@
 #include <iostream>
 using namespace std;
 using num_t = unsigned int;
-const int maxn = 1e5, maxl = 32;
+const int maxn = 1e5, maxl = 27;
 
 num_t a[maxn + 10];
 namespace st
@@ -23,9 +23,10 @@ namespace st
     }
     void init(const unsigned int n)
     {
-        copy(a, a + n, tab[0]);
+        for (unsigned int i = 1; i <= n; ++i)
+            tab[i][0] = a[i];
         for (unsigned int i = 1; i <= lg[n]; ++i)
-            for (unsigned int j = 0; j + (1 << i) <= n; ++j)
+            for (unsigned int j = 1; j + (1 << i) <= n; ++j)
                 tab[j][i] = min(tab[j][i - 1], tab[j + (1 << (i - 1))][i - 1]);
     }
     num_t query(const unsigned int l, const unsigned int r)
@@ -35,11 +36,27 @@ namespace st
     }
 }
 
+unsigned int query(int l, int r, const num_t x)
+{
+    while (l <= r)
+    {
+        const int m = (l + r) >> 1;
+        if (st::query(l, m) <= x)
+            r = m - 1;
+        else
+            l = m + 1;
+    }
+    return l;
+}
+
 num_t GetMod(const unsigned int l, const unsigned int r, num_t x)
 {
-    const num_t m = st::query(l, r);
-    for (unsigned int i = l; i <= r && x > m; ++i)
-        x %= a[i];
+    for (unsigned int i = l; i <= r; ++i)
+    {
+        i = query(i, r, x);
+        if (i <= r)
+            x %= a[i];
+    }
     return x;
 }
 int main()
@@ -49,7 +66,7 @@ int main()
 #endif
     unsigned int n, m;
     cin >> n >> m;
-    for (num_t* i = a; i < a + n; ++i)
+    for (num_t* i = a + 1; i < a + n + 1; ++i)
         cin >> *i;
     st::GetLog(n);
     st::init(n);
@@ -58,7 +75,7 @@ int main()
         unsigned int l, r;
         num_t x;
         cin >> x >> l >> r;
-        cout << GetMod(l - 1, r - 1, x) << endl;
+        cout << GetMod(l, r, x) << endl;
     }
     return 0;
 }

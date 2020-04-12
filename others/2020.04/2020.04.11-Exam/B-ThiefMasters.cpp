@@ -33,7 +33,7 @@ public:
     }
     void push(unsigned int pos, num val)
     {
-        while (!q.empty() && cmp(val, q.front().second))
+        while (!q.empty() && cmp(val, q.back().second))
             q.pop_back();
         q.push_back(make_pair(pos, val));
     }
@@ -57,10 +57,10 @@ void col(const unsigned int a, const unsigned int b, const unsigned int n)
         for (unsigned int j = 0; j < n; ++j)
             q.push(j, mat[i][j]);
         rrang[i][0][pos] = q.front();
-        for (unsigned int j = 0; j < b - n; ++j)
+        for (unsigned int j = 0; j <= b - n; ++j)
         {
             q.pop(j);
-            q.push(j + n, mat[i][j + n]);
+            q.push(j + n - 1, mat[i][j + n - 1]);
             rrang[i][j][pos] = q.front();
         }
         for (unsigned int j = b - n; j < b; ++j)
@@ -82,7 +82,7 @@ void row(const unsigned int a, const unsigned int b, const unsigned int n)
         for (unsigned int j = 0; j <= a - n; ++j)
         {
             q.pop(j);
-            q.push(j + n, rrang[j + n][i][pos]);
+            q.push(j + n - 1, rrang[j + n - 1][i][pos]);
             brang[j][i][pos] = q.front();
         }
     }

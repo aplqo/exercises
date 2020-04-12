@@ -25,6 +25,7 @@ void CreateData(ofstream& of, const unsigned int n, const num_t ma)
     uniform_int_distribution<num_t> dis(1, ma);
     for (unsigned int i = 0; i < n; ++i)
         of << dis(rnd) << " ";
+    of << endl;
 }
 void CreateQuery(ofstream& of, const unsigned int n, const unsigned int m, const num_t ma)
 {
