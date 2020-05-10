@@ -8,9 +8,9 @@
 using std::getchar;
 using std::min;
 using std::printf;
-const int maxn = 1e6, maxl = 25;
+const int maxn = 1e6, maxl = 20;
 
-unsigned int tab[maxn + 10][maxl + 10];
+unsigned int tab[maxn + 10][maxl];
 unsigned int val[maxn + 10], lg[maxn + 10];
 
 template <class T>
