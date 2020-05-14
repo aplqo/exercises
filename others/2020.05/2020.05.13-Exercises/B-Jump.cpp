@@ -15,18 +15,28 @@ public:
         : val(i % mod)
     {
     }
-#define alop(o)                                                            \
-    inline Number operator o(const Number r) const { return val o r.val; } \
+
+#define alop(o)                                                      \
+    friend inline Number operator o(const Number l, const Number r); \
     inline Number& operator o##=(const Number r) { return *this = *this o r; }
     alop(+);
     alop(*);
 #undef alop
-
+    friend inline Number factor(const Number i);
     friend inline ostream& operator<<(ostream& os, const Number v);
 
 private:
     unsigned long long val = 0;
 };
+#define impl(o) \
+    inline Number operator o(const Number l, const Number r) { return l.val o r.val; }
+impl(+);
+impl(*);
+#undef impl
+inline Number operator""_N(const unsigned long long i)
+{
+    return i;
+}
 inline Number operator^(Number a, unsigned long long e)
 {
     Number ret = 1;
@@ -46,25 +56,28 @@ inline Number operator/(const Number l, const Number r)
     Number inv = r ^ (mod - 2);
     return l * inv;
 }
-inline ostream& operator<<(ostream& os, const Number v) { return os << v.val; }
-Number factor(const unsigned long long n)
+inline ostream& operator<<(ostream& os, const Number v)
+{
+    return os << v.val;
+}
+inline Number factor(const unsigned long long a, const unsigned int b)
 {
     Number ret = 1;
-    for (unsigned long long i = 1; i <= n; ++i)
+    for (unsigned long long i = b; i > a; --i)
         ret *= i;
     return ret;
 }
 
-Number c(unsigned long long n, unsigned long long m)
+Number c(unsigned long long m, unsigned long long n)
 {
-    const static auto co = [](const unsigned long long i,
-                               const unsigned long long j) {
-        return factor(j) / (factor(j - i) * factor(i));
+    const static auto co = [](const unsigned long long j, unsigned long long i) {
+        i = min(i, j - i);
+        return factor(j - i, j) / factor(0, i);
     };
     Number ret = 1;
     while (n && m)
     {
-        ret *= co(n % mod, m % mod);
+        ret *= co(m % mod, n % mod);
         n /= mod;
         m /= mod;
     }
@@ -80,9 +93,6 @@ int main()
     cin >> n >> m;
     if (n < m)
         swap(n, m);
-    Number ans = n + 1;
-    for (unsigned int i = 1; i <= m; ++i)
-        ans += c(n, i + n);
-    cout << ans << endl;
+    cout << c(n + m + 1, n + 1) + n << endl;
     return 0;
 }
