@@ -3,39 +3,70 @@
 #include "debug_tools/program.h"
 #endif
 #include <algorithm>
+#include <climits>
+#include <cmath>
 #include <iostream>
 using namespace std;
-const int maxn = 10000;
+constexpr unsigned int inf = UINT_MAX;
+const int maxn = 10000, maxl = 15;
 
+unsigned int col;
+struct vertex;
 struct edge
 {
-    unsigned int to;
+    vertex* to;
     edge* pre = nullptr;
 } ed[maxn * 2 + 10];
-edge* head[maxn + 10];
-unsigned int odd, even;
+struct vertex
+{
+    edge* head = nullptr;
+    unsigned int f[maxl + 10] = { inf };
+    unsigned int fst = 0, snd = 0;
 
-void addEdge(const unsigned int from, const unsigned int to)
+    void dfs(const vertex* fa)
+    {
+        for (edge* i = head; i; i = i->pre)
+        {
+            if (i->to == fa)
+                continue;
+            i->to->dfs(this);
+        }
+        for (unsigned int i = 1; i <= col; ++i)
+        {
+            f[i] = i;
+            for (edge* j = head; j; j = j->pre)
+            {
+                if (j->to == fa)
+                    continue;
+                const vertex& to = *(j->to);
+                f[i] += (to.fst == i ? to.f[to.snd] : to.f[to.fst]);
+            }
+            update(i);
+        }
+    }
+    void addEdge(const unsigned int to);
+
+private:
+    void update(const unsigned int v)
+    {
+        if (f[v] < f[fst])
+        {
+            snd = fst;
+            fst = v;
+        }
+        else if (f[v] < f[snd])
+            snd = v;
+    }
+} ve[maxn + 10];
+void vertex::addEdge(const unsigned int to)
 {
     static edge* cur = ed;
-    cur->to = to;
-    cur->pre = head[from];
-    head[from] = cur;
+    cur->to = ve + to;
+    cur->pre = head;
+    head = cur;
     ++cur;
 }
-void dfs(const unsigned int x, const unsigned int f, const unsigned int d = 0)
-{
-    if (d & 0x01)
-        ++odd;
-    else
-        ++even;
-    for (edge* i = head[x]; i; i = i->pre)
-    {
-        if (i->to == f)
-            continue;
-        dfs(i->to, x, d + 1);
-    }
-}
+
 int main()
 {
 #ifndef APTEST
@@ -43,14 +74,15 @@ int main()
 #endif
     unsigned int n;
     cin >> n;
+    col = log2(n) + 1;
     for (unsigned int i = 1; i < n; ++i)
     {
         unsigned int u, v;
         cin >> u >> v;
-        addEdge(u, v);
-        addEdge(v, u);
+        ve[u].addEdge(v);
+        ve[v].addEdge(u);
     }
-    dfs(1, 0);
-    cout << max(odd, even) + min(odd, even) * 2 << endl;
+    ve[1].dfs(nullptr);
+    cout << ve[1].f[ve[1].fst] << endl;
     return 0;
 }
