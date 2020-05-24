@@ -21,8 +21,33 @@ enum dir
     In = 0 << 1,
     Out = 1 << 1
 };
-unsigned int f[maxn + 1][maxn + 1];
+unsigned int f[maxn * 4 + 1][maxn * 4 + 1];
 pair<typ, typ> mat[maxn + 10][maxn + 10];
+
+#ifdef APLOG
+void printPoint(ostream& os, unsigned int p)
+{
+    os << p / 4;
+    os << (p & Right ? "R" : "L") << (p & Out ? "O" : "I");
+    os << " (" << p << ")";
+}
+void printGraph(ostream& os, unsigned int n)
+{
+    const unsigned int mp = n * 4;
+    for (unsigned int i = 0; i < mp; ++i)
+        for (unsigned int j = 0; j < mp; ++j)
+            if (i != j && f[i][j] != inf)
+            {
+                printPoint(os, i);
+                os << " -> ";
+                printPoint(os, j);
+                os << endl;
+            }
+}
+#define writeGraph(n) printGraph(clog, n)
+#else
+#define writeGraph(n)
+#endif
 
 void init(const unsigned int n)
 {
@@ -41,19 +66,19 @@ unsigned int toPoint(unsigned int p0, typ lr, dir io)
     return p0 * 4 + lr + io;
 }
 using ed = pair<unsigned int, typ>;
-void addEdge(ed l, ed r)
+void addEdge(ed&& l, ed&& r)
 {
-    const static auto upd = [](typ& v, typ t) {if(t!=Unknown)v=t; };
-    const static auto poi = [](const ed p, dir io) { return toPoint(p.first, p.second, io); };
-    if (l.first > r.first)
+    const static auto upd = [](typ& v, typ& t) {if(t!=Unknown)v=t;else if(v!=Unknown)t=v; };
+    const static auto point = [](const ed& p, dir io) { return toPoint(p.first, p.second, io); };
+    if (l > r)
         swap(l, r);
     auto& e = mat[l.first][r.first];
     upd(e.first, l.second);
     upd(e.second, r.second);
     if (e.first != Unknown && e.second != Unknown)
     {
-        f[poi(l, Out)][poi(r, In)] = 0;
-        f[poi(r, Out)][poi(l, In)] = 0;
+        f[point(l, Out)][point(r, In)] = 0;
+        f[point(r, Out)][point(l, In)] = 0;
     }
 }
 void readEdge(const unsigned int n)
@@ -63,8 +88,8 @@ void readEdge(const unsigned int n)
     {
         unsigned int s = read(), l, n1, n2;
         cin >> l >> n1 >> n2;
-        f[toPoint(s, Left, In)][toPoint(s, Left, Out)] = l;
-        f[toPoint(s, Right, In)][toPoint(s, Right, Out)] = l;
+        f[toPoint(s, Left, In)][toPoint(s, Right, Out)] = l;
+        f[toPoint(s, Right, In)][toPoint(s, Left, Out)] = l;
         for (unsigned int j = 0; j < n1; ++j)
             addEdge(make_pair(s, Left), make_pair(read(), Unknown));
         for (unsigned int j = 0; j < n2; ++j)
@@ -98,6 +123,7 @@ int main()
     cin >> n;
     init(n);
     readEdge(n);
+    writeGraph(n);
     floyd(n);
     cout << solve(n) << endl;
     return 0;
