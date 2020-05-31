@@ -17,31 +17,24 @@ struct member
 } m[maxn + 10];
 num_t f[maxn + 10][maxn + 10];
 
-unsigned int init(const unsigned int n)
+long long dp(const unsigned int n)
 {
     sort(m + 1, m + 1 + n, [](member a, member b) -> bool {
         return a.a != b.a ? a.a < b.a : a.b > b.b;
-    });
-    member *b, *e = find_if(m + 1, m + 1 + n, [](member i) -> bool { return i.a; });
-    b = find_if(m + 1, e, [](member i) -> bool { return i.b > 0; });
-    for (unsigned int i = 0; i < e - b; ++i)
-        f[0][i + 1] = f[0][i] + (b + i)->b;
-    for (unsigned int i = e - b + 1; i <= n; ++i)
-        f[0][i] = f[0][e - b];
-    return e - m;
-}
-long long dp(const unsigned int n, const unsigned int beg)
-{
-    if (n >= beg)
+    }); // required!
+    for (unsigned int i = 1; i <= n; ++i)
     {
-        for (unsigned int i = 0; i <= n - beg; ++i)
+        const member cur = m[i];
+        for (unsigned int j = n; j > 0; --j)
         {
-            member& cur = m[beg + i];
-            for (unsigned int j = 1; j <= n; ++j)
-                f[i + 1][j] = max(f[i][j + cur.a - 1] + cur.b, f[i][j]);
+            const unsigned int p = min(j + cur.a - 1, n);
+            f[i][j] = max(f[i - 1][j], f[i - 1][p] + cur.b);
         }
     }
-    return f[n - beg + 1][1];
+    num_t ret = 0;
+    for (unsigned int i = 0; i <= n; ++i)
+        ret = max(ret, f[i][1]);
+    return ret;
 }
 int main()
 {
@@ -52,6 +45,6 @@ int main()
     cin >> n;
     for (member* i = m + 1; i < m + 1 + n; ++i)
         cin >> i->a >> i->b;
-    cout << dp(n, init(n)) << endl;
+    cout << dp(n) << endl;
     return 0;
 }
