@@ -4,26 +4,13 @@
 #endif
 #include <algorithm>
 #include <cmath>
-#include <functional>
 #include <iostream>
+#include <utility>
 using namespace std;
 using num_t = int;
 const int maxn = 2000, maxq = 6000;
 
-struct edge
-{
-    edge *to[maxn + 10], *from;
-    unsigned int cnt = 0;
-    num_t val, sum = 0;
-    unsigned int len = 0;
-
-    void add(edge* const v)
-    {
-        to[cnt++] = v;
-    }
-} ed[maxn + 10];
-bool mat[maxn + 10][maxn + 10];
-unsigned int tmp[maxn + 10];
+unsigned int a[maxn + 10];
 unsigned int mindiv[maxq + 10], primes[maxq + 10], *pcur = primes;
 
 void eular(const unsigned int ma)
@@ -41,56 +28,54 @@ void eular(const unsigned int ma)
 }
 bool isPrime(const unsigned int val)
 {
-    for (unsigned int* i = primes; i < pcur; ++i)
-        if (val % *i)
+    for (unsigned int* i = primes; i < pcur && *i < val; ++i)
+        if (val % *i == 0)
             return false;
     return true;
 }
-void fun(const unsigned int n)
+pair<unsigned int, unsigned int> findPair(const unsigned int n)
 {
-    for (edge* i = ed; i < ed + n; ++i)
-        for (edge* j = i + 1; j < ed + n; ++j)
-            if (isPrime(i->val + j->val))
-                j->add(i);
-    for (edge* i = ed; i < ed + n; ++i)
-    {
-        for (unsigned int j = 0; j < i->cnt; ++j)
-        {
-            const unsigned int cl = i->to[j]->len + 1;
-            const num_t cs = i->to[j]->sum + i->val;
-            if (i->len < cl || (i->len == cl && i->sum < cs))
+    unsigned int f = 0, s = 0;
+    for (unsigned int i = 0; i < n; ++i)
+        for (unsigned int j = i + 1; j < n; ++j)
+            if (isPrime(a[i] + a[j]) && (f + s < a[i] + a[j]))
             {
-                i->len = cl;
-                i->val = cs;
-                i->from = i->to[j];
+                f = a[i];
+                s = a[j];
             }
-        }
-    }
+    return make_pair(f, s);
 }
-unsigned int getAns(const unsigned int n)
+unsigned int findOne(const unsigned int n)
 {
-    unsigned int ret = 0;
-    edge* sel = ed;
-    for (edge* i = ed + 1; i < ed + n; ++i)
-        if (i->len > sel->len || (i->len == sel->len && i->sum > sel->sum))
-            sel = i;
-    for (edge* i = sel; i; i = i->from)
-        tmp[ret++] = i->val;
-    return sel->val;
+    unsigned int* e = upper_bound(a, a + n, 1);
+    for (unsigned int* i = a + n - 1; i >= e; --i)
+        if (isPrime(*i + 1))
+            return *i;
+    return 0;
 }
+
 int main()
 {
     unsigned int n;
     cin >> n;
-    for (unsigned int* i = tmp; i < tmp + n; ++i)
-        cin >> *i;
-    sort(tmp, tmp + n, greater<unsigned int>());
-    for (unsigned int i = 0; i < n; ++i)
-        ed[i].val = tmp[i];
-    eular(tmp[0] + tmp[1]);
-    fun(n);
-    cout << getAns(n) << endl;
-    for (unsigned int* i = tmp; i < tmp + n; ++i)
-        cout << *i << " ";
+    for_each(a, a + n, [](unsigned int& i) -> void { cin >> i; });
+    sort(a, a + n);
+    eular(sqrt(a[n - 1] + a[n - 2]));
+    if (all_of(a, a + n, [](unsigned int i) -> bool { return i > 1; }))
+    {
+        cout << "2" << endl;
+        const auto [fst, snd] = findPair(n);
+        cout << fst << " " << snd << endl;
+    }
+    else
+    {
+        unsigned int cnt = upper_bound(a, a + n, 1) - a;
+        unsigned int v = findOne(n);
+        cout << (cnt + (v ? 1 : 0)) << endl;
+        for (unsigned int i = 0; i < cnt; ++i)
+            cout << "1 ";
+        if (v)
+            cout << v;
+    }
     return 0;
 }
