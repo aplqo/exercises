@@ -3,11 +3,34 @@
 #endif
 #include <algorithm>
 #include <iostream>
-#include <vector>
+#include <utility>
 using namespace std;
-const unsigned int maxn = 1e5;
+using Range = pair<unsigned int, unsigned int>;
+const unsigned int maxn = 1e5, maxm = 1e5;
 
-vector<unsigned int> rang[maxn + 1];
+int tree[maxn + 1];
+Range segs[maxn * 4 + 1], *cur = segs;
+struct query
+{
+    unsigned int l, r;
+    mutable unsigned int ans;
+} qry[maxm];
+const query* seq[maxm];
+
+#define lowbit(x) ((x) & -(x))
+static inline void modify(unsigned int p, const unsigned int n, const int val)
+{
+    for (; p <= n; p += lowbit(p))
+        tree[p] += val;
+}
+static inline unsigned int queryPre(unsigned int p)
+{
+    unsigned int ret = 0;
+    for (; p; p -= lowbit(p))
+        ret += tree[p];
+    return ret;
+}
+#undef lowbit
 
 void dfsRead(const unsigned int l, const unsigned int r)
 {
@@ -18,17 +41,22 @@ void dfsRead(const unsigned int l, const unsigned int r)
         dfsRead(l, m);
         dfsRead(m + 1, r);
     }
-    rang[l].push_back(r);
+    *(cur++) = make_pair(l, r);
 }
-unsigned int solve(const unsigned int l, const unsigned int r)
+static void solve(const unsigned int n, const unsigned int m)
 {
-    unsigned int p = l, ret = 0;
-    while (p <= r)
+    transform(qry, qry + m, seq, [](const query& i) { return &i; });
+    sort(seq, seq + m, [](const query* a, const query* b) { return a->l < b->l; });
+    sort(segs, cur);
+    for (const Range* i = segs; i < cur; ++i)
+        modify(i->second, n, 1);
+    const Range* p = segs;
+    for (unsigned int i = 0; i < m; ++i)
     {
-        ++ret;
-        p = *(upper_bound(rang[p].begin(), rang[p].end(), r) - 1) + 1;
+        for (const unsigned int cl = seq[i]->l; p < cur && p->first < cl; ++p)
+            modify(p->second, n, -1);
+        seq[i]->ans = 2 * (seq[i]->r + 1 - seq[i]->l) - queryPre(seq[i]->r);
     }
-    return ret;
 }
 
 int main()
@@ -39,11 +67,10 @@ int main()
     unsigned int n, m;
     cin >> n >> m;
     dfsRead(1, n);
-    for (unsigned int i = 0; i < m; ++i)
-    {
-        unsigned int l, r;
-        cin >> l >> r;
-        cout << solve(l, r) << endl;
-    }
+    for (query* i = qry; i < qry + m; ++i)
+        cin >> i->l >> i->r;
+    solve(n, m);
+    for (const query* i = qry; i < qry + m; ++i)
+        cout << i->ans << endl;
     return 0;
 }
