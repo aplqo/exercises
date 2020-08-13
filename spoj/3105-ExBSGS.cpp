@@ -24,13 +24,18 @@ long long exgcd(const long long a, const long long b, long long& x, long long& y
     y = t - (a / b) * y;
     return g;
 }
-inline pair<unsigned long long, unsigned long long> inverse(long long y, long long p)
+inline unsigned long long gcd(long long a, long long b)
+{
+    long long x, y;
+    return exgcd(a, b, x, y);
+}
+inline unsigned long long inverse(long long y, long long p)
 {
     long long a, b;
     const unsigned long long g = exgcd(y, p, a, b);
     if (y % p == 1 || y % p == 0)
-        return make_pair(g, 1);
-    return make_pair(g, ((a + p) % p + p) % p);
+        return 1;
+    return ((a + p) % p + p) % p;
 }
 unsigned long long quickPow(unsigned long long a, unsigned long long e)
 {
@@ -80,18 +85,18 @@ unsigned long long bsgs(unsigned long long y, unsigned long long z, const unsign
 }
 unsigned long long exbsgs(unsigned long long y, unsigned long long z)
 {
-    unsigned long long r = 0;
-    for (pair<unsigned long long, unsigned long long> g = inverse(y, mod); true;)
+    unsigned long long r = 0, g = gcd(y, mod);
+    while (true)
     {
-        if (g.first == 1 || z == 1)
+        if (g == 1 || z == 1)
             break;
-        mod /= g.first;
-        if (z % g.first)
+        mod /= g;
+        if (z % g)
             return ULLONG_MAX;
-        z = (z / g.first) % mod;
+        z = (z / g) % mod;
         ++r;
-        z = (z * inverse(y / g.first, mod).second) % mod;
-        g = inverse(y, mod);
+        z = (z * inverse(y / g, mod)) % mod;
+        g = gcd(y, mod);
     }
     return bsgs(y, z, r);
 }
