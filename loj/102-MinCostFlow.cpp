@@ -18,7 +18,7 @@ struct Edge
     int cap, cost;
     Edge* pre;
 } ed[maxm * 2 + 1];
-Edge* head[maxn + 1];
+Edge *head[maxn + 1], *cur[maxn + 1];
 int dis[maxn + 1], h[maxn + 1];
 
 void addEdge(const unsigned int from, const unsigned int to, const int cap, const int cost)
@@ -68,10 +68,10 @@ int dfs(const int x, const int cap, const int sink)
         return cap;
     vis[x] = true;
     int rst = cap;
-    for (Edge* i = head[x]; i && rst; i = i->pre)
+    for (Edge*& i = cur[x]; i && rst; i = i->pre)
     {
         const int w = h[i->from] + i->cost - h[i->to];
-        if (!vis[i->to] && dis[i->to] == dis[x] + w)
+        if (!vis[i->to] && i->cap && dis[i->to] == dis[x] + w)
         {
             const int t = dfs(i->to, min(rst, i->cap), sink);
             rst -= t;
@@ -82,6 +82,22 @@ int dfs(const int x, const int cap, const int sink)
     vis[x] = false;
     return cap - rst;
 }
+pair<int, int> flow(const unsigned int n, const unsigned int source, const unsigned int sink)
+{
+    int mxf = 0, mnc = 0;
+    while (dijkstra(source, sink, n))
+    {
+        copy(head, head + n + 1, cur);
+        const int t = dfs(source, inf, sink);
+        for (unsigned int i = 1; i <= n; ++i)
+            if (dis[i] != inf)
+                h[i] += dis[i];
+        mxf += t;
+        mnc += h[sink] * t;
+    }
+    return make_pair(mxf, mnc);
+}
+
 int main()
 {
 #ifndef APTEST
@@ -97,16 +113,7 @@ int main()
         addEdge(s, t, c, w);
         addEdge(t, s, 0, -w);
     }
-    int mxf = 0, mnc = 0;
-    while (dijkstra(1, n, n))
-    {
-        const int t = dfs(1, inf, n);
-        for (unsigned int i = 1; i <= n; ++i)
-            if (dis[i] != inf)
-                h[i] += dis[i];
-        mxf += t;
-        mnc += h[n] * t;
-    }
+    const auto [mxf, mnc] = flow(n, 1, n);
     cout << mxf << " " << mnc << endl;
     return 0;
 }
