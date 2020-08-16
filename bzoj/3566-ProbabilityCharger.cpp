@@ -50,7 +50,10 @@ void dfsChange(const unsigned int x, const unsigned int f, const real fp)
     ans[x] = 1 - notCon[x];
     for (const Edge* i = head[x]; i; i = i->pre)
         if (i->to != f)
-            dfsChange(i->to, x, conProb(i, notCon[x] / conProb(i, notCon[i->to])));
+        {
+            const real tp = conProb(i, notCon[i->to]);
+            dfsChange(i->to, x, conProb(i, tp >= 0 && tp <= 0 ? 0 : notCon[x] / tp));
+        }
 }
 int main()
 {
