@@ -33,6 +33,7 @@ public:
     {
         return cur - a;
     }
+    bool zero;
 
 private:
     void insert(unsigned long long tp[], unsigned long long x)
@@ -59,7 +60,6 @@ private:
             zero = true;
     }
 
-    bool zero;
     unsigned long long a[maxl + 1], *cur = a;
 } lb;
 unsigned long long num[maxn + 1];
@@ -78,7 +78,7 @@ int main()
     {
         unsigned long long k;
         cin >> k;
-        if (k >= (1ull << lb.size()))
+        if (k >= (1ull << lb.size()) + lb.zero)
             cout << "-1" << endl;
         else
             cout << lb.kth(k) << endl;
