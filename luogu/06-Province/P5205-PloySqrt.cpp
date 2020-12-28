@@ -146,9 +146,11 @@ void sqrt(const Number a[], Number out[], const unsigned int lgn)
         updateInverse<1, 0>(out, inv, tinv, i);
         ntt(tinv, a, tmp, i);
         {
-            const unsigned int n = 1u << i;
-            for (unsigned int j = 0; j < n; ++j)
+            const unsigned int n = 1u << i, half = 1u << (i - 1);
+            for (unsigned int j = 0; j < half; ++j)
                 out[j] = inv2 * (out[j] + tmp[j]);
+            for (unsigned int j = half; j < n; ++j)
+                out[j] = inv2 * tmp[j];
         }
         updateInverse<0, 0>(out, inv, inv, i);
     }
