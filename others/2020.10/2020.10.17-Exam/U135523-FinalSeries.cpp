@@ -16,58 +16,50 @@ unsigned int sel[maxn + 10][maxs + 10], val[maxn + 10][maxs + 10];
 
 static void getPrime(const unsigned int n)
 {
-    unsigned int cnt = 0;
-    for (unsigned int i = 2; i <= n; ++i)
-    {
-        if (factors[i])
-            continue;
-        factors[i] = 1 << (cnt++);
-        for (unsigned int j = i; j <= n; j += i)
-            factors[j] |= factors[i];
-    }
+  unsigned int cnt = 0;
+  for (unsigned int i = 2; i <= n; ++i) {
+    if (factors[i]) continue;
+    factors[i] = 1 << (cnt++);
+    for (unsigned int j = i; j <= n; j += i)
+      factors[j] |= factors[i];
+  }
 }
 unsigned int dp(const unsigned int pos, const unsigned int fac)
 {
-    static bool vis[maxn + 1][maxs + 1];
-    if (pos >= n)
-        return 0;
-    if (vis[pos][fac])
-        return val[pos][fac];
-    unsigned int ret = inf;
-    for (int i = 1; i <= maxl; ++i)
-    {
-        if ((fac & factors[i]) || abs(i - a[pos]) >= ret)
-            continue;
-        const unsigned int nv = abs(i - a[pos]) + dp(pos + 1, fac | factors[i]);
-        if (nv < ret)
-        {
-            sel[pos][fac] = i;
-            ret = nv;
-        }
+  static bool vis[maxn + 1][maxs + 1];
+  if (pos >= n) return 0;
+  if (vis[pos][fac]) return val[pos][fac];
+  unsigned int ret = inf;
+  for (int i = 1; i <= maxl; ++i) {
+    if ((fac & factors[i]) || abs(i - a[pos]) >= ret) continue;
+    const unsigned int nv = abs(i - a[pos]) + dp(pos + 1, fac | factors[i]);
+    if (nv < ret) {
+      sel[pos][fac] = i;
+      ret = nv;
     }
-    vis[pos][fac] = true;
-    return val[pos][fac] = ret;
+  }
+  vis[pos][fac] = true;
+  return val[pos][fac] = ret;
 }
 void printSolution(const unsigned int n)
 {
-    unsigned int fac = 0;
-    for (unsigned int i = 0; i < n; ++i)
-    {
-        cout << sel[i][fac] << " ";
-        fac |= factors[sel[i][fac]];
-    }
-    cout.put('\n');
+  unsigned int fac = 0;
+  for (unsigned int i = 0; i < n; ++i) {
+    cout << sel[i][fac] << " ";
+    fac |= factors[sel[i][fac]];
+  }
+  cout.put('\n');
 }
 
 int main()
 {
 #ifndef APTEST
-    ios_base::sync_with_stdio(false);
+  ios_base::sync_with_stdio(false);
 #endif
-    cin >> n;
-    copy_n(istream_iterator<int>(cin), n, a);
-    getPrime(maxl);
-    dp(0, 0);
-    printSolution(n);
-    return 0;
+  cin >> n;
+  copy_n(istream_iterator<int>(cin), n, a);
+  getPrime(maxl);
+  dp(0, 0);
+  printSolution(n);
+  return 0;
 }

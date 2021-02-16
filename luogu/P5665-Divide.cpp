@@ -14,81 +14,81 @@ unsigned long long sum[maxn + 10];
 
 void readInput(const unsigned int n, unsigned long long dat[])
 {
-    static constexpr unsigned int msk = (1 << 30) - 1;
-    static unsigned int b[maxn + 10];
-    static struct Tuple
-    {
-        unsigned int p, l, r;
-    } tup[maxm + 10];
-    unsigned int m;
-    {
-        unsigned long long x, y, z;
-        cin >> x >> y >> z >> b[1] >> b[2] >> m;
-        for (unsigned int i = 3; i <= n; ++i)
-            b[i] = (((x * b[i - 1]) & msk) + ((y * b[i - 2]) & msk) + z) & msk;
-    }
-    for (Tuple* i = tup + 1; i < tup + m + 1; ++i)
-        cin >> i->p >> i->l >> i->r;
-    tup[0].p = 0;
-    const Tuple* ptr = tup + 1;
-    for (unsigned int i = 1; i <= n; ++i)
-    {
-        while (ptr < tup + m + 1 && !((ptr - 1)->p < i && i <= ptr->p))
-            ++ptr;
-        dat[i] = (b[i] % (ptr->r + 1 - ptr->l)) + ptr->l;
-    }
+  static constexpr unsigned int msk = (1 << 30) - 1;
+  static unsigned int b[maxn + 10];
+  static struct Tuple {
+    unsigned int p, l, r;
+  } tup[maxm + 10];
+  unsigned int m;
+  {
+    unsigned long long x, y, z;
+    cin >> x >> y >> z >> b[1] >> b[2] >> m;
+    for (unsigned int i = 3; i <= n; ++i)
+      b[i] = (((x * b[i - 1]) & msk) + ((y * b[i - 2]) & msk) + z) & msk;
+  }
+  for (Tuple* i = tup + 1; i < tup + m + 1; ++i)
+    cin >> i->p >> i->l >> i->r;
+  tup[0].p = 0;
+  const Tuple* ptr = tup + 1;
+  for (unsigned int i = 1; i <= n; ++i) {
+    while (ptr < tup + m + 1 && !((ptr - 1)->p < i && i <= ptr->p))
+      ++ptr;
+    dat[i] = (b[i] % (ptr->r + 1 - ptr->l)) + ptr->l;
+  }
 }
 template <class T>
 void writeUInt(T val)
 {
-    static char buf[40];
-    char* pos = buf;
-    do
-    {
-        *(pos++) = (val % 10) + '0';
-        val /= 10;
-    } while (val);
-    while (pos > buf)
-        cout.put(*(--pos));
+  static char buf[40];
+  char* pos = buf;
+  do {
+    *(pos++) = (val % 10) + '0';
+    val /= 10;
+  } while (val);
+  while (pos > buf)
+    cout.put(*(--pos));
 }
 
 data_t dp(const unsigned int n)
 {
-    static unsigned int q[maxn + 10], lst[maxn + 10];
-    const auto segSum = [](const unsigned int i) { return 2 * sum[i] - sum[lst[i]]; };
-    unsigned int *front = q, *back = q;
-    *(back++) = 0;
-    for (unsigned int i = 1; i <= n; ++i)
-    {
-        while (back - front > 1 && segSum(*(front + 1)) <= sum[i]) // (pre,front] > (front,i]
-            ++front;
-        lst[i] = *front;
-        while (back - front >= 1 && segSum(*(back - 1)) >= segSum(i))
-            --back;
-        *(back++) = i;
-    }
-    data_t ret = 0;
-    for (unsigned int pos = n; pos; pos = lst[pos])
-        ret += static_cast<data_t>(sum[pos] - sum[lst[pos]]) * (sum[pos] - sum[lst[pos]]);
-    return ret;
+  static unsigned int q[maxn + 10], lst[maxn + 10];
+  const auto segSum = [](const unsigned int i) {
+    return 2 * sum[i] - sum[lst[i]];
+  };
+  unsigned int *front = q, *back = q;
+  *(back++) = 0;
+  for (unsigned int i = 1; i <= n; ++i) {
+    while (back - front > 1 &&
+           segSum(*(front + 1)) <= sum[i])  // (pre,front] > (front,i]
+      ++front;
+    lst[i] = *front;
+    while (back - front >= 1 && segSum(*(back - 1)) >= segSum(i))
+      --back;
+    *(back++) = i;
+  }
+  data_t ret = 0;
+  for (unsigned int pos = n; pos; pos = lst[pos])
+    ret += static_cast<data_t>(sum[pos] - sum[lst[pos]]) *
+           (sum[pos] - sum[lst[pos]]);
+  return ret;
 }
 
 int main()
 {
 #ifndef APTEST
-    ios_base::sync_with_stdio(false);
+  ios_base::sync_with_stdio(false);
 #endif
-    unsigned int n;
-    {
-        unsigned int type;
-        cin >> n >> type;
-        if (type)
-            readInput(n, sum);
-        else
-            copy_n(istream_iterator<unsigned int>(cin), n, sum + 1);
-    }
-    partial_sum(sum, sum + n + 1, sum);
-    writeUInt(dp(n));
-    cout.put('\n');
-    return 0;
+  unsigned int n;
+  {
+    unsigned int type;
+    cin >> n >> type;
+    if (type)
+      readInput(n, sum);
+    else
+      copy_n(istream_iterator<unsigned int>(cin), n, sum + 1);
+  }
+  partial_sum(sum, sum + n + 1, sum);
+  writeUInt(dp(n));
+  cout.put('\n');
+  return 0;
 }

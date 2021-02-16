@@ -9,13 +9,13 @@ using num = unsigned long long;
 int main()
 {
 #ifndef APTEST
-    ios_base::sync_with_stdio(false);
+  ios_base::sync_with_stdio(false);
 #endif
-    num p, q;
-    cin >> p >> q;
-    if (p != q)
-        cout << ((p - 1) * (q - 1) >> 2) << endl;
-    else
-        cout << ((p - 1) * (q + 1) >> 2) << endl;
-    return 0;
+  num p, q;
+  cin >> p >> q;
+  if (p != q)
+    cout << ((p - 1) * (q - 1) >> 2) << endl;
+  else
+    cout << ((p - 1) * (q + 1) >> 2) << endl;
+  return 0;
 }

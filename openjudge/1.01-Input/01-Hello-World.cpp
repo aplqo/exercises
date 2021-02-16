@@ -2,7 +2,7 @@
 using std::cout;
 int main()
 {
-	cout << "Hello, World!" ;
-	cout.flush();
-	return 0;
+  cout << "Hello, World!";
+  cout.flush();
+  return 0;
 }

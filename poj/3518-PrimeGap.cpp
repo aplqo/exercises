@@ -12,36 +12,32 @@ int primes[maxn], mdiv[maxp], cur = 0;
 
 void GetPrimes()
 {
-    for (int i = 2; i < maxp; ++i)
-    {
-        if (!mdiv[i])
-        {
-            mdiv[i] = i;
-            primes[cur++] = i;
-        }
-        for (int* j = primes; j < primes + cur && *j <= mdiv[i]; ++j)
-            if (*j * i <= maxp)
-                mdiv[(*j) * i] = *j;
-            else
-                break;
+  for (int i = 2; i < maxp; ++i) {
+    if (!mdiv[i]) {
+      mdiv[i] = i;
+      primes[cur++] = i;
     }
+    for (int* j = primes; j < primes + cur && *j <= mdiv[i]; ++j)
+      if (*j * i <= maxp)
+        mdiv[(*j) * i] = *j;
+      else
+        break;
+  }
 }
 
 int main()
 {
-    ios_base::sync_with_stdio(false);
-    GetPrimes();
-    while (true)
-    {
-        int v;
-        cin >> v;
-        if (!v)
-            break;
-        int* p = lower_bound(primes, primes + cur, v);
-        if (*p == v)
-            cout << "0" << endl;
-        else
-            cout << (*p - *(p - 1)) << endl;
-    }
-    return 0;
+  ios_base::sync_with_stdio(false);
+  GetPrimes();
+  while (true) {
+    int v;
+    cin >> v;
+    if (!v) break;
+    int* p = lower_bound(primes, primes + cur, v);
+    if (*p == v)
+      cout << "0" << endl;
+    else
+      cout << (*p - *(p - 1)) << endl;
+  }
+  return 0;
 }

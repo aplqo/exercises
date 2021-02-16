@@ -21,46 +21,39 @@ long long L;
 #define K(i) (2 * x_i(i))
 #define C(i) (x_i(i) * x_i(i))
 
-struct point
-{
-    point(long long x, long long y)
-        : x(x)
-        , y(y)
-    {
-    }
-    point(unsigned int v)
-        : point(X(v), Y(v))
-    {
-    }
-    long long x, y;
+struct point {
+  point(long long x, long long y) : x(x), y(y) {}
+  point(unsigned int v) : point(X(v), Y(v)) {}
+  long long x, y;
 };
 inline real slope(const point l, const point r)
 {
-    return static_cast<real>(l.y - r.y) / (l.x - r.x);
+  return static_cast<real>(l.y - r.y) / (l.x - r.x);
 }
 static long long solve(const unsigned int n)
 {
-    static unsigned int q[maxn + 1], *front = q, *back = q + 1;
-    for (unsigned int i = 1; i <= n; ++i)
-    {
-        while (back - front >= 2 && slope(point(*(front + 1)), point(*front)) < K(i))
-            ++front;
-        f[i] = Y(*front) - K(i) * X(*front) + C(i);
-        while (back - front >= 2 && slope(point(*(back - 1)), point(i)) < slope(point(*(back - 2)), point(i)))
-            --back;
-        *(back++) = i;
-    }
-    return f[n];
+  static unsigned int q[maxn + 1], *front = q, *back = q + 1;
+  for (unsigned int i = 1; i <= n; ++i) {
+    while (back - front >= 2 &&
+           slope(point(*(front + 1)), point(*front)) < K(i))
+      ++front;
+    f[i] = Y(*front) - K(i) * X(*front) + C(i);
+    while (back - front >= 2 && slope(point(*(back - 1)), point(i)) <
+                                    slope(point(*(back - 2)), point(i)))
+      --back;
+    *(back++) = i;
+  }
+  return f[n];
 }
 int main()
 {
 #ifndef APTEST
-    ios_base::sync_with_stdio(false);
+  ios_base::sync_with_stdio(false);
 #endif
-    unsigned int n;
-    cin >> n >> L;
-    copy_n(istream_iterator<long long>(cin), n, s + 1);
-    partial_sum(s + 1, s + n + 1, s + 1);
-    cout << solve(n) << endl;
-    return 0;
+  unsigned int n;
+  cin >> n >> L;
+  copy_n(istream_iterator<long long>(cin), n, s + 1);
+  partial_sum(s + 1, s + n + 1, s + 1);
+  cout << solve(n) << endl;
+  return 0;
 }

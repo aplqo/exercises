@@ -1,12 +1,12 @@
 #include <iostream>
-using std::cout;
 using std::cin;
+using std::cout;
 
 int main()
 {
-	unsigned int f;
-	cin >> f;
-	cout << (char)f;
-	cout.flush();
-	return 0;
+  unsigned int f;
+  cin >> f;
+  cout << (char)f;
+  cout.flush();
+  return 0;
 }

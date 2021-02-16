@@ -98,7 +98,7 @@ public:
     /*Bitwise arithmetic operators*/
     oper(&);
     oper(|);
-    oper (^);
+    oper(^);
     oper(>>);
     oper(<<);
     /*Relational operators*/
@@ -120,7 +120,7 @@ public:
     assop(%);
     assop(&);
     assop(|);
-    assop (^);
+    assop(^);
     assop(>>);
     assop(<<);
 #undef assop

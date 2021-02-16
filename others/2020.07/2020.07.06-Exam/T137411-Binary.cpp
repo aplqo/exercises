@@ -15,31 +15,30 @@ unsigned int n;
 
 unsigned long long query(const unsigned int x, const unsigned int y)
 {
-    unsigned long long ret = 0;
-    for (unsigned int i = 0; i < n; ++i)
-        ret += (a[i] + x) & y;
-    return ret;
+  unsigned long long ret = 0;
+  for (unsigned int i = 0; i < n; ++i)
+    ret += (a[i] + x) & y;
+  return ret;
 }
 int main()
 {
 #ifndef APTEST
-    ios_base::sync_with_stdio(false);
+  ios_base::sync_with_stdio(false);
 #endif
-    stringstream ibuf;
-    ostringstream obuf;
-    unsigned int q;
-    ibuf << cin.rdbuf();
-    ibuf >> n >> q;
-    copy_n(istream_iterator<unsigned int>(ibuf), n, a);
-    for (unsigned int i = 0; i < q; ++i)
-    {
-        unsigned int op, x, y;
-        ibuf >> op >> x >> y;
-        if (op == 1)
-            a[x - 1] = y;
-        else
-            obuf << query(x, y) << endl;
-    }
-    cout << obuf.str();
-    return 0;
+  stringstream ibuf;
+  ostringstream obuf;
+  unsigned int q;
+  ibuf << cin.rdbuf();
+  ibuf >> n >> q;
+  copy_n(istream_iterator<unsigned int>(ibuf), n, a);
+  for (unsigned int i = 0; i < q; ++i) {
+    unsigned int op, x, y;
+    ibuf >> op >> x >> y;
+    if (op == 1)
+      a[x - 1] = y;
+    else
+      obuf << query(x, y) << endl;
+  }
+  cout << obuf.str();
+  return 0;
 }

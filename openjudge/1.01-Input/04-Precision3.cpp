@@ -1,12 +1,11 @@
+#include <cstdio>
 #include <iostream>
-#include<cstdio>
-using std::printf;
 using std::cin;
+using std::printf;
 int main()
 {
-	float f;
-	cin >> f;
-	printf("%.3f", f);
-	return 0;
+  float f;
+  cin >> f;
+  printf("%.3f", f);
+  return 0;
 }
-

@@ -6,7 +6,7 @@ constexpr unsigned int sShort = sizeof(short);
 
 int main()
 {
-	cout << sInt<<" "<<sShort;
-	cout.flush();
-	return 0;
+  cout << sInt << " " << sShort;
+  cout.flush();
+  return 0;
 }

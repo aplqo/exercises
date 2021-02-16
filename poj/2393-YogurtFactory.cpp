@@ -14,19 +14,17 @@ int n;
 
 int main()
 {
-    ios_base::sync_with_stdio(false);
-    cin >> n >> s;
-    for (int i = 0; i < n; ++i)
-        cin >> c[i] >> y[i];
-    for (int i = 0; i < n; ++i)
-    {
-        if (store + i * s < c[i])
-            ans += (store + i * s) * y[i];
-        else
-            ans += c[i] * y[i];
-        if (c[i] - i * s < store)
-            store = c[i] - i * s;
-    }
-    cout << ans << endl;
-    return 0;
+  ios_base::sync_with_stdio(false);
+  cin >> n >> s;
+  for (int i = 0; i < n; ++i)
+    cin >> c[i] >> y[i];
+  for (int i = 0; i < n; ++i) {
+    if (store + i * s < c[i])
+      ans += (store + i * s) * y[i];
+    else
+      ans += c[i] * y[i];
+    if (c[i] - i * s < store) store = c[i] - i * s;
+  }
+  cout << ans << endl;
+  return 0;
 }

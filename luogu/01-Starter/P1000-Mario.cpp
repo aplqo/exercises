@@ -27,7 +27,7 @@ const char* dat =
 
 int main()
 {
-	cout << dat;
-	cout.flush();
-	return 0;
+  cout << dat;
+  cout.flush();
+  return 0;
 }

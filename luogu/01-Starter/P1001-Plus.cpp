@@ -1,11 +1,11 @@
 #include <iostream>
-using std::cout;
 using std::cin;
+using std::cout;
 int main()
 {
-	int a, b;
-	cin >> a >> b;
-	cout << (a + b);
-	cout.flush();
-	return 0;
+  int a, b;
+  cin >> a >> b;
+  cout << (a + b);
+  cout.flush();
+  return 0;
 }

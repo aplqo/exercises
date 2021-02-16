@@ -18,57 +18,54 @@ uint_fast64_t en;
 
 inline void toNum(uint_fast64_t stat, unsigned int val[])
 {
-    for (unsigned int i = 0; i < n; ++i)
-    {
-        val[i] = stat & 0x0f;
-        stat >>= 4;
-    }
+  for (unsigned int i = 0; i < n; ++i) {
+    val[i] = stat & 0x0f;
+    stat >>= 4;
+  }
 }
 int dfs(const uint_fast64_t stat)
 {
-    static unordered_map<uint_fast64_t, int> mem;
-    if (stat == en)
-        return 0;
-    {
-        auto it = mem.find(stat);
-        if (it != mem.end())
-            return it->second;
-    }
-    unsigned int val[maxn];
-    toNum(stat, val);
+  static unordered_map<uint_fast64_t, int> mem;
+  if (stat == en) return 0;
+  {
+    auto it = mem.find(stat);
+    if (it != mem.end()) return it->second;
+  }
+  unsigned int val[maxn];
+  toNum(stat, val);
 
-    const bool tur = !(accumulate(val, val + n, 0) & 0x01);
-    const auto calc = [&val, tur, stat](const unsigned int p) {
-        return dfs(stat + inc(p)) + (tur ? a[p][val[p] + 1] : -b[p][val[p] + 1]);
-    };
+  const bool tur = !(accumulate(val, val + n, 0) & 0x01);
+  const auto calc = [&val, tur, stat](const unsigned int p) {
+    return dfs(stat + inc(p)) + (tur ? a[p][val[p] + 1] : -b[p][val[p] + 1]);
+  };
 
-    int ret;
-    if (val[0] + 1 <= m)
-        ret = calc(0);
-    else
-        ret = tur ? INT_MIN : INT_MAX;
+  int ret;
+  if (val[0] + 1 <= m)
+    ret = calc(0);
+  else
+    ret = tur ? INT_MIN : INT_MAX;
 
-    for (unsigned int i = 1; i < n; ++i)
-        if (val[i] < val[i - 1])
-            ret = tur ? max(ret, calc(i)) : min(ret, calc(i));
-    return mem[stat] = ret;
+  for (unsigned int i = 1; i < n; ++i)
+    if (val[i] < val[i - 1]) ret = tur ? max(ret, calc(i)) : min(ret, calc(i));
+  return mem[stat] = ret;
 }
-inline void read(const unsigned int n, const unsigned int m, int dest[][maxn + 1])
+inline void read(const unsigned int n, const unsigned int m,
+                 int dest[][maxn + 1])
 {
-    for (unsigned int i = 0; i < n; ++i)
-        copy_n(istream_iterator<int>(cin), m, dest[i] + 1);
+  for (unsigned int i = 0; i < n; ++i)
+    copy_n(istream_iterator<int>(cin), m, dest[i] + 1);
 }
 
 int main()
 {
 #ifndef APTEST
-    ios_base::sync_with_stdio(false);
+  ios_base::sync_with_stdio(false);
 #endif
-    cin >> n >> m;
-    read(n, m, a);
-    read(n, m, b);
-    for (unsigned int i = 0; i < n; ++i)
-        en |= uint_fast64_t(m) << i * 4;
-    cout << dfs(0) << endl;
-    return 0;
+  cin >> n >> m;
+  read(n, m, a);
+  read(n, m, b);
+  for (unsigned int i = 0; i < n; ++i)
+    en |= uint_fast64_t(m) << i * 4;
+  cout << dfs(0) << endl;
+  return 0;
 }

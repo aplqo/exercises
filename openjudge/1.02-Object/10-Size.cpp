@@ -2,8 +2,7 @@
 using std::cout;
 int main()
 {
-	cout << sizeof("Hello, World!");
-	cout.flush();
-	return 0;
+  cout << sizeof("Hello, World!");
+  cout.flush();
+  return 0;
 }
-
