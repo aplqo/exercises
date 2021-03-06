@@ -9,7 +9,7 @@
 const int maxn = 1e5, maxse = 2e5;
 const int maxv = maxn * 2, maxe = (maxv + maxse) * 2;
 
-namespace ISAP {
+namespace Dinic {
 struct Edge {
   int from, to;
   mutable int flow;
@@ -55,10 +55,11 @@ int augment(const int x, const int cap, const int sink)
       i->flow -= v;
       i->rev->flow += v;
       rst -= v;
+      if (!rst) break;
     }
   return cap - rst;
 }
-int isap(const int n, const int source, const int sink)
+int dinic(const int n, const int source, const int sink)
 {
   int ret = 0;
   while (bfs(n, source, sink)) {
@@ -68,7 +69,7 @@ int isap(const int n, const int source, const int sink)
   return ret;
 }
 
-};  // namespace ISAP
+};  // namespace Dinic
 int edge[maxn + 19][2];
 bool used[maxn + 10];
 int n;
@@ -77,19 +78,19 @@ int maxMatch(const int n)
 {
   const int source = n * 2 - 1, sink = source + 1;
   for (int i = 1; i < n; ++i)
-    ISAP::addEdge(source, i);
+    Dinic::addEdge(source, i);
   for (int i = 0; i < n - 1; ++i)
-    ISAP::addEdge(i + n, sink);
-  return ISAP::isap(sink + 1, source, sink);
+    Dinic::addEdge(i + n, sink);
+  return Dinic::dinic(sink + 1, source, sink);
 }
 void construct(const int x)
 {
-  for (auto i = ISAP::head[x]; i; i = i->pre) {
+  for (auto i = Dinic::head[x]; i; i = i->pre) {
     const int to = i->to - n;
     if (0 <= to && to < n - 1 && !used[to]) {
       used[to] = true;
       edge[to][0] = 1 + x;
-      for (auto j = ISAP::head[i->to]; j; j = j->pre)
+      for (auto j = Dinic::head[i->to]; j; j = j->pre)
         if (0 <= j->to && j->to < n && j->flow) {
           edge[to][1] = j->to + 1;
           construct(j->to);
@@ -109,7 +110,7 @@ int main()
     for (int j = c; j; --j) {
       int p;
       std::cin >> p;
-      ISAP::addEdge(p - 1, i + n);
+      Dinic::addEdge(p - 1, i + n);
     }
   }
   if (maxMatch(n) == n - 1) {
